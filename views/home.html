@@ -23,9 +23,31 @@
                                     <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
                                         <i class="fa fa-cogs" aria-hidden="true"></i> <span id="searchLabel">Filter</span> <span class="caret"></span>
                                     </button>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#" class="small" data-value="JavaScript" tabindex="-1"><input type="checkbox" />&nbsp;JavaScript</a></li>
-                                        <li><a href="#" class="small" data-value="Python" tabindex="-1"><input type="checkbox" />&nbsp;Python</a></li>
+                                    <ul class="dropdown-menu" md-input-container role="menu">
+                                        
+                                            <li ng-repeat="langName in languages" class="languages">
+                                                <label style="color:black">
+                                                    <input class="small" type="checkbox"
+                                                           name="languagesSelected[]"
+                                                           value="{{langName}}"
+                                                           ng-checked="languagesSelected.indexOf(langName) > -1"
+                                                           ng-click="toggleSelection(langName)">&nbsp; {{langName}}
+                                                </label>
+                                            </li>
+                                        <li class="languages">
+                                            <!-- Filters/Auto-Complete -->
+                                            <md-autocomplete md-dropdown-position="bottom" md-selected-item="selectedItem" md-search-text="searchText" md-items="item in getMatches(searchText)" md-item-text="item.display" md-min-length="0" placeholder="Type something">
+                                                <md-item-template>
+                                                    <span md-highlight-text="searchText">{{item.display}}</span>
+
+                                                </md-item-template>
+                                                <md-not-found>No matches found.</md-not-found>
+                                            </md-autocomplete>
+                                            
+                                            
+                                        </li>
+                                        
+                                        
                                     </ul>
                                 </div>
                             </div>

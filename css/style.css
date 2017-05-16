@@ -49,9 +49,20 @@ body {
 .header p {
 	 text-shadow: 0px 3px 0px #000;
 }
-
+.languages{
+    padding-left: 10px;
+}
 .map {
     height: 500px;
+}
+input{
+    color:black;
+}
+md-autcomplete{
+    color:black;
+}
+.md-virtual-repeat-scroller{
+    z-index:10;
 }
 
 @media(max-width:768px) {
