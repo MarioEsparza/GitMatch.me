@@ -1,2 +1,4 @@
 # GitNear
-A web app that finds and matches git users
+A web app that finds and matches git user.
+
+## WIP -
