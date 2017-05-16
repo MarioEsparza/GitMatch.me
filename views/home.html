@@ -1,0 +1,48 @@
+<!-- Header-->
+<header id="top" class="header">
+    <div class="container text-center vertical-center app-container">
+        <div class="row">
+            <div class="col-md-12">
+
+                <span class="fa-stack fa-4x">
+                    <i class="fa fa-github fa-stack-2x"></i>
+                </span>
+
+                <h1>Github API Test </h1>
+                <p class="lead">Find local collaborators!</p>
+
+                <div ng-bind-html="renderHtml(errorMessage)"></div>
+                <!-- Form -->
+                <form name="userForm" ng-submit="findNear()" novalidate>
+                    <!-- Location -->
+                    <div class="form-group" ng-class="{ 'has-error' : userForm.location.$invalid && !userForm.location.$pristine }">
+                        <div class="input-group  input-group-lg col-sm-6 col-sm-offset-3">
+
+                           <div class="input-group-btn check-input-icon">
+                                <div class="btn-group">
+                                    <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <i class="fa fa-cogs" aria-hidden="true"></i> <span id="searchLabel">Filter</span> <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#" class="small" data-value="JavaScript" tabindex="-1"><input type="checkbox" />&nbsp;JavaScript</a></li>
+                                        <li><a href="#" class="small" data-value="Python" tabindex="-1"><input type="checkbox" />&nbsp;Python</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <input type="text" class="form-control" name="location" id="location" placeholder="Search location" ng-model="location" ng-blur="removeSpaces(location)" required>
+                            <!-- Submit -->
+                            <span class="input-group-btn  check-input-icon">
+                                <button type="submit" class="btn btn-default btn-lg" ng-disabled="userForm.$invalid"><i class="fa fa-search" aria-hidden="true"></i></button>
+                            </span>
+
+                        </div>
+                        <p ng-show="userForm.location.$invalid && !userForm.location.$pristine" class="help-block">A location is required.</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Result -->
