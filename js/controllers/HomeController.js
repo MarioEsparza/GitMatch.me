@@ -4,8 +4,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     var resultLength = null;
     var latitude, longitude = null;
     var searchRadius = "40234"; // 25 miles in meters
-    var nearbyLocationList = {};
+    var nearbyLocationList = [];
     var languangeToken = "";
+    $scope.getGitAttempts = 0;
     $scope.selected = "";
     
     // Locations to be used as Check Boxes
@@ -75,7 +76,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
               }, // End of Map Geocode Successful CallBack
                function error(_error) {
                    $scope.Error = _error;
-               })// End of Map Geocode Call Back
+               })// End of Map Geocode Error CallBack
 
             // Call Back Executed when Nearby Search returns its promise
             function nearbySearchResults(results, status) {
@@ -135,6 +136,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         return languageT;
     }
     $scope.gitAPI = function (locationT) {
+        console.log(locationT);
         console.log($scope.languagesSelected)
         /*GitHub APi*/
         // Remove Spaces from input
@@ -144,14 +146,35 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         //Passes location to Factory. Determines whether return data is good.
         var getData = locationService.getUsers(locationToken, languangeToken);
         getData.then(function (response) {
+            
             $scope.returnData = response;
             resultLength = $scope.returnData.total_count;
+
+            console.log($scope.returnData.total_count);
             console.log("GitHub # of Users: ", $scope.returnData.total_count);
             console.table($scope.returnData.items);
+            console.log($scope.getGitAttempts < nearbyLocationList.length,$scope.getGitAttempts,nearbyLocationList.length);
+            if (resultLength < 5) {                //If GitHub API results are less than 5, then search nearby location
+                if ($scope.getGitAttempts < nearbyLocationList.length) {
+                    //Increment $scope.getGitAttempts each call from nearbyLocationList, attempts the next location given the names aren't too similar
+                    console.log(locationT != nearbyLocationList[$scope.getGitAttempts].replace(/\s+/g, '-').toLowerCase())
+                    
+                    // Could think about using fuzzyset.js
+                    //http://glench.github.io/fuzzyset.js/
 
-            if (resultLength < 5) {
-                //If GitHub API results are less than 5, then search nearby location
-                //$scope.gitAPI(nearbyLocationList[0]);
+                    // Compares locationT , which was passed to  $scope.gitAPI and already formatted in a token format, and the formatted nearbyLocationList item
+                    if (locationT == nearbyLocationList[$scope.getGitAttempts].replace(/\s+/g, '-').toLowerCase()) {
+                        $scope.getGitAttempts++;
+                        console.log("Skipped, too similar of location");
+                    }
+                    //Starts search for next location in list
+                    console.log("Starting next location")
+                    $scope.gitAPI(nearbyLocationList[$scope.getGitAttempts++]);
+                    
+
+                } else if ($scope.getGitAttempts == nearbyLocationList.length) {
+                    $scope.getGitAttempts = 0;
+                }
 
             }
         })
