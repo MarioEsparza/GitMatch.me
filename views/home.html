@@ -23,7 +23,7 @@
                                     <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
                                         <i class="fa fa-cogs" aria-hidden="true"></i> <span id="searchLabel">Filter</span> <span class="caret"></span>
                                     </button>
-                                    <ul class="dropdown-menu" md-input-container role="menu">
+                                    <ul class="dropdown-menu"  role="menu">
                                         
                                             <li ng-repeat="langName in languages" class="languages">
                                                 <label style="color:black">
@@ -36,8 +36,8 @@
                                             </li>
                                         <li class="languages">
                                             <!-- Filters/Auto-Complete -->
-                                            <md-autocomplete md-dropdown-position="bottom" md-selected-item="selectedItem" md-search-text="searchText" md-items="item in getMatches(searchText)" md-item-text="item.display" md-min-length="0" placeholder="Type something">
-                                                <md-item-template>
+                                            <md-autocomplete  md-dropdown-position="bottom" md-selected-item="selectedItem" md-search-text="searchText" md-items="item in getMatches(searchText)" md-item-text="item.display" md-min-length="0" placeholder="Type something">
+                                                <md-item-template class="auto-complete">
                                                     <span md-highlight-text="searchText">{{item.display}}</span>
 
                                                 </md-item-template>
