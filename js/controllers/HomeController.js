@@ -4,6 +4,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     var resultLength = null;
     var latitude, longitude = null;
     var searchRadius = "40234"; // 25 miles in meters
+    var extendedSearchRadius = "80468"; //50 miles in meters
     var nearbyLocationList = [];
     var languangeToken = "";
     $scope.getGitAttempts = 0;
@@ -12,7 +13,11 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     // Locations to be used as Check Boxes
     $scope.languages = ["Javascript", "Python", "C#"];
    
-    
+    // Match Algorithm Details
+
+    // ------ Search Based on Location and Language
+    // ------ Return First User
+    // ------ Show Details of User, list projects
    
     
     // Selected languages
@@ -77,6 +82,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                function error(_error) {
                    $scope.Error = _error;
                })// End of Map Geocode Error CallBack
+            
 
             // Call Back Executed when Nearby Search returns its promise
             function nearbySearchResults(results, status) {
@@ -136,25 +142,30 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         return languageT;
     }
     $scope.gitAPI = function (locationT) {
-        console.log(locationT);
-        console.log($scope.languagesSelected)
+        
         /*GitHub APi*/
-        // Remove Spaces from input
         languangeToken = "";
         var locationToken = locationT;       
         languangeToken = $scope.createLanguageToken();
         //Passes location to Factory. Determines whether return data is good.
         var getData = locationService.getUsers(locationToken, languangeToken);
         getData.then(function (response) {
-            
+            console.log(response);
             $scope.returnData = response;
+            // Creates appended list of users returned
+            if ($scope.getGitAttempts == 0) {
+                $scope.usersReturned = response.items
+                console.log("First set of users returned", $scope.usersReturned)
+            } else {
+                $scope.usersReturned.push.apply($scope.usersReturned, response.items);
+                console.log("Next set of users returned ",$scope.usersReturned)
+            }
             resultLength = $scope.returnData.total_count;
 
-            console.log($scope.returnData.total_count);
-            console.log("GitHub # of Users: ", $scope.returnData.total_count);
-            console.table($scope.returnData.items);
-            console.log($scope.getGitAttempts < nearbyLocationList.length,$scope.getGitAttempts,nearbyLocationList.length);
-            if (resultLength < 5) {                //If GitHub API results are less than 5, then search nearby location
+            console.log("GitHub # of Users returned from API Call",$scope.returnData.total_count);
+            console.log("GitHub # of Total Users: ", $scope.usersReturned.length);
+            console.table($scope.usersReturned);
+            if (resultLength < 10) {                //If GitHub API results are less than 5, then search nearby location
                 if ($scope.getGitAttempts < nearbyLocationList.length) {
                     //Increment $scope.getGitAttempts each call from nearbyLocationList, attempts the next location given the names aren't too similar
                     console.log(locationT != nearbyLocationList[$scope.getGitAttempts].replace(/\s+/g, '-').toLowerCase())
@@ -173,23 +184,76 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                     
 
                 } else if ($scope.getGitAttempts == nearbyLocationList.length) {
-                    $scope.getGitAttempts = 0;
+                    // Broaden Search Locations and remove previously searched locations
+
+                    var myLatlng = new google.maps.LatLng(latitude, longitude);
+                    var service = new google.maps.places.PlacesService($('#service-helper').get(0));
+                    // Extended Search NearBy Locations
+                    service.nearbySearch({
+                        location: myLatlng,
+                        radius: extendedSearchRadius,
+                        types: ['locality']
+                        // Call nearbySearchResults
+                    }, extendedNearbySearchResults);
                 }
 
             }
         })
     };
-    
+
+    // Extended Call Back executed when Extended Nearby Search returns its promise
+    function extendedNearbySearchResults(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            console.log("Nearby Search SUCCESS: ", results.length);
+            console.log(results);
+            var currentResult = results[0].name;
+            for (var i = 0; i < results.length; i++) {
+                currentResult = results[i].name.replace(/\s+/g,'-').toLowerCase();
+                if (nearbyLocationList.indexOf(currentResult) == -1) {
+                    nearbyLocationList[nearbyLocationList.length] = currentResult;
+                } else {
+                    console.log("Location already in list", currentResult);
+                }
+                
+            }
+            console.log("Nearby Places: ", nearbyLocationList);
+
+        }
+        else {
+            console.log("Nearby Search FAIL");
+        }
+
+        // Called within call back
+        if (nearbyLocationList.length > $scope.getGitAttempts) {
+            $scope.gitAPI(nearbyLocationList[$scope.getGitAttempts++]);
+        }
+        else {
+            console.log("No new search locations were found, adding another extend may not yield much and whether or not to do so will come down to how much we value the GitHub API calls")
+        }
+    }
     
 
+    // Proof of Concept for Git-Awards CORS-ByPass for Top-Location
+    //console.log("Dont mind this, the site still works, but I need to test on mobile")
+    //$http.get("https://crossorigin.me/http://git-awards.com/api/v0/users?city=los+angeles&language=shell").then(function (data) {
+    //    console.log(data);
+    //    Use this one if you wanna see a familiar face :P
+    //    console.log(data.data[13]);
+    //}, function (error) {
+        
+    //})
+    
 
-    /* Will only work, once found a solution to CORS Accept Origin
+    // No works!
     $scope.gitTopAPI = function (locationT) {
-        GitHub APi
+       
         // Remove Spaces from input
         var locationToken = locationT;
 
         //Passes location to Factory. Determines whether return data is good.
+        // Requires different token format
+        // replace : with =
+        // EG https://crossorigin.me/http://git-awards.com/api/v0/users?city=los+angeles&language=shell
         var getData = topLocationService.getUsers(locationToken, languangeToken);
         getData.then(function (response) {
             console.log(response);
@@ -211,7 +275,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         $scope.gitTopAPI($scope.location.replace(/\s+/g, '-').toLowerCase());
     }
 
-    */
+    
 
 
     //Dropdown Menu WIP
