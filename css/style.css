@@ -21,6 +21,7 @@ body {
     font-weight: 700;
 }
 
+
 /*Home Page*/
 
 .header {
@@ -49,9 +50,21 @@ body {
 .header p {
 	 text-shadow: 0px 3px 0px #000;
 }
-
+.languages{
+    padding-left: 10px;
+}
 .map {
     height: 500px;
+}
+input{
+    color:black;
+    z-index:150;
+}
+md-autcomplete{
+    color:black;
+}
+.md-virtual-repeat-scroller{
+    z-index:10;
 }
 
 @media(max-width:768px) {
@@ -170,6 +183,15 @@ body {
 }
 
 /* Modals*/
+.modal h1 {
+    color: #fff;
+    font-weight: 600;
+    text-shadow: 0px 3px 0px #000;
+    text-align: center;
+}
+.modal-content{
+    background-color: #1e1e1e;
+}
 .modal-vertical-align {
     display:table;
     height: 100%;
@@ -179,25 +201,8 @@ body {
     display: table-cell;
     vertical-align: middle;
 }
-.modal-content {
-    width:inherit;
-    height:inherit;
-    margin: -30% auto;
-    -webkit-border-radius: 0px !important;
-    -moz-border-radius: 0px !important;
-    border-radius: 0px !important; 
-}
- .modal-header {
-  min-height: 16.42857143px;
-  padding: 15px;
-  border-bottom: none;
-  }
 
-.modal-footer {
-  padding: 15px;
-  text-align: right;
-  border-top: none;
-}
+
 
 @media (min-width:320px)  { 
  
@@ -206,40 +211,101 @@ body {
 
 @media (min-width:481px)  {
 
-	
+	/* Auto Complete Formatting */
+
 	} 
 @media (max-width:481px)  {
 	   .app-container{		
 		margin-top: 5%;
 
 	}
-
+       
 	
 	}/* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ 
 @media (min-width:641px)  { 
 	.container{
 		max-width: 650px;
 	}
-	
+	/* Auto Complete Formatting */
+.dropdown-menu{
+    z-index:100;
+}
+.dropdown-menu li{
+    z-index:300;
+}
+input[type="search"]{
+    z-index:300;
+}
+.auto-complete,.md-virtual-repeat-scroller{
+    z-index:200;
+}
+.md-virtual-repeat-container.md-autocomplete-suggestions-container{
+    z-index:300;
+}
 	}/* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ 
 @media (min-width:961px)  { 
 	.container{
 		max-width: 650px;
 	}
-	
+	/* Auto Complete Formatting */
+.dropdown-menu{
+    z-index:100;
+}
+.dropdown-menu li{
+    z-index:300;
+}
+input[type="search"]{
+    z-index:300;
+}
+.auto-complete,.md-virtual-repeat-scroller{
+    z-index:200;
+}
+.md-virtual-repeat-container.md-autocomplete-suggestions-container{
+    z-index:300;
+}
 	}/* tablet, landscape iPad, lo-res laptops ands desktops */ 
 @media (min-width:1025px) { 
 	.container{
 		max-width: 650px;
 	}
-	
+	/* Auto Complete Formatting */
+.dropdown-menu{
+    z-index:100;
+}
+.dropdown-menu li{
+    z-index:300;
+}
+input[type="search"]{
+    z-index:300;
+}
+.auto-complete,.md-virtual-repeat-scroller{
+    z-index:200;
+}
+.md-virtual-repeat-container.md-autocomplete-suggestions-container{
+    z-index:300;
+}
 	}/* big landscape tablets, laptops, and desktops */ 
 @media (min-width:1281px) { 
 
 	.container{
 		max-width: 650px;
 	}
-
+    /* Auto Complete Formatting */
+.dropdown-menu{
+    z-index:100;
+}
+.dropdown-menu li{
+    z-index:300;
+}
+input[type="search"]{
+    z-index:300;
+}
+.auto-complete,.md-virtual-repeat-scroller{
+    z-index:200;
+}
+.md-virtual-repeat-container.md-autocomplete-suggestions-container{
+    z-index:300;
+}
     .admin-container{
 	max-width: 1000px;
     }
