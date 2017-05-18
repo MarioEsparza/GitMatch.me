@@ -11,7 +11,6 @@
                 <h1>Github API Test </h1>
                 <p class="lead">Find local collaborators!</p>
 
-                <div ng-bind-html="renderHtml(errorMessage)"></div>
                 <!-- Form -->
                 <form name="userForm" ng-submit="findNear()" novalidate>
                     <!-- Location -->
@@ -23,9 +22,27 @@
                                     <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
                                         <i class="fa fa-cogs" aria-hidden="true"></i> <span id="searchLabel">Filter</span> <span class="caret"></span>
                                     </button>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#" class="small" data-value="JavaScript" tabindex="-1"><input type="checkbox" />&nbsp;JavaScript</a></li>
-                                        <li><a href="#" class="small" data-value="Python" tabindex="-1"><input type="checkbox" />&nbsp;Python</a></li>
+                                    <ul class="dropdown-menu"  role="menu">
+                                        
+                                            <li ng-repeat="langName in languages" class="languages">
+                                                <label style="color:black">
+                                                    <input class="small" type="checkbox"
+                                                           name="languagesSelected[]"
+                                                           value="{{langName}}"
+                                                           ng-checked="languagesSelected.indexOf(langName) > -1"
+                                                           ng-click="toggleSelection(langName)">&nbsp; {{langName}}
+                                                </label>
+                                            </li>
+                                        <li class="languages">
+                                            <!-- Filters/Auto-Complete -->
+                                            <md-autocomplete  md-dropdown-position="bottom" md-selected-item="selectedItem" md-search-text="searchText" md-items="item in getMatches(searchText)" md-item-text="item.display" md-min-length="0" placeholder="Type something">
+                                                <md-item-template class="auto-complete">
+                                                    <span md-highlight-text="searchText">{{item.display}}</span>
+
+                                                </md-item-template>
+                                                <md-not-found>No matches found.</md-not-found>
+                                            </md-autocomplete>                                      
+                                        </li>                                                                               
                                     </ul>
                                 </div>
                             </div>
@@ -41,8 +58,49 @@
                     </div>
                 </form>
             </div>
+            <!-- Match Me -->
+            <button type="button" class='btn btn-success btn-lg' data-toggle="modal" data-target="#match-modal">Match Me <i class="fa fa-user-plus" aria-hidden="true"></i></button>
         </div>
     </div>
 </header>
 
 <!-- Result -->
+
+
+<!-- Button to be used for Following the user in GitMatch  Place this tag where you want the button to render.
+<a class="github-button" href="{{userHTML}}" data-size="large" data-show-count="true" aria-label="Follow @{{username}} on GitHub">Follow @{{username}}</a>
+-->
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="match-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content ">
+
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #fff;"><span aria-hidden="true">&times;</span></button>
+                <h1>GitMatch </h1>
+                <!-- Match Form -->
+                <form name="userForm" ng-submit="findMatch()" novalidate>
+                    <!-- Location -->
+                    <div class="form-group" ng-class="{ 'has-error' : userForm.username.$invalid && !userForm.username.$pristine }">
+                        <div class="input-group  input-group-sm col-sm-8 col-sm-offset-2">
+                            <div class="input-group-btn ">
+                            </div>
+                            <input type="text" class="form-control" name="username" id="username" placeholder="Enter you GitHub Username" ng-model="userName" required>
+                            <!-- Submit -->
+                            <span class="input-group-btn  ">
+                                <button type="submit" class="btn btn-sm btn-success " ng-disabled="userForm.$invalid"><i class="fa fa-check" aria-hidden="true"></i></button>
+                            </span>
+
+                        </div>
+                        <p ng-show="userForm.username.$invalid && !userForm.username.$pristine" class="help-block">A username is required. No spaces allowed.</p>
+                    </div>
+                </form>
+                <div ng-bind-html="renderHtml(errorMessage)"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
