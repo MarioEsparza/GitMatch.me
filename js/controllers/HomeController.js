@@ -10,13 +10,42 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     $scope.getGitAttempts = 0;
     $scope.selected = "";
     
+    // Disable Menu from closing after selecting a auto complete field
+    $('.md-virtual-repeat-offsetter').bind('click', function (e) {
+        e.stopPropagation();
+    });
+    // Stops click event from bubbling up to built in dropdown-menu click event function
+    $('.dropdown-menu').bind('click', function (e) {
+        e.stopPropagation();
+    })
     // Locations to be used as Check Boxes
-    $scope.languages = ["Javascript", "Python", "C#"];
- 
+    $scope.languages = ["JavaScript", "Python", "C#"];
     
     // Selected languages
     $scope.languagesSelected = [];
+    
+    // Function is called everytime searchText is changed.
+    // After function is called, it sets its value back to empty, which makes the function be called again
+    $scope.addLang = function (searchText) {
+        if (searchText != "" && !$scope.languages.includes(searchText)) {
+            $scope.languages.push(searchText);
+            $scope.toggleSelection(searchText);
+            $scope.searchText = "";
+        } else if ($scope.languages.includes(searchText)) {
+            if ($scope.languagesSelected.indexOf(searchText) == -1) {
+                $scope.toggleSelection(searchText);
+                $scope.searchText = "";
+                
+            } else {
 
+                $scope.toggleSelection(searchText);
+                $scope.searchText = "";
+            }
+
+
+        } 
+        
+    }
     // Toggle selection for a given language by name
     $scope.toggleSelection = function toggleSelection(langName) {
         var idx = $scope.languagesSelected.indexOf(langName);
