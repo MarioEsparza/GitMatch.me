@@ -1,4 +1,4 @@
-app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', 'locationService', function ($scope, $timeout, $http, $sce, $location, locationService) {
+app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', 'locationService','$timeout', function ($scope, $timeout, $http, $sce, $location, locationService,$timeout) {
     //Variables
     var APIkey = "AIzaSyDAihxgpGZnCxv9w99fyjThJsZDYKEOVp8"
     var resultLength = null;
@@ -9,9 +9,13 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     var languangeToken = "";
     $scope.getGitAttempts = 0;
     $scope.selected = "";
-    
+
+    // Disable Menu from closing after selecting a auto complete field
+    $('.md-virtual-repeat-offsetter').bind('click', function (e) {
+        e.stopPropagation();
+    });
     // Locations to be used as Check Boxes
-    $scope.languages = ["Javascript", "Python", "C#"];
+    $scope.languages = ["JavaScript", "Python", "C#"];
    
     // Match Algorithm Details
 
@@ -22,7 +26,24 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     
     // Selected languages
     $scope.languagesSelected = [];
+    
+    $scope.addLang = function (searchText) {
+        if (searchText != null && searchText != "" && !$scope.languages.includes(searchText)) {
+            console.log("Enters add Item");
+            $scope.languages.push(searchText);
+            $scope.toggleSelection(searchText);
+            $scope.searchText = "";
+        } else if ($scope.languages.includes(searchText)) {
+            if ($scope.languagesSelected.indexOf(searchText) == -1) {
+                $scope.toggleSelection(searchText);
+                $scope.searchText = "";
+                
+            }
 
+
+        }
+        
+    }
     // Toggle selection for a given language by name
     $scope.toggleSelection = function toggleSelection(langName) {
         var idx = $scope.languagesSelected.indexOf(langName);
@@ -35,6 +56,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             // Is newly selected
         else {
             $scope.languagesSelected.push(langName);
+            
         }
         console.log($scope.languagesSelected);
     };
@@ -130,15 +152,14 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
         }//End Valid Submit
     }
+    
     // Create Token for GitHub Api Call
     $scope.createLanguageToken = function () {
         var languageT="";
         for (var i = 0; i < $scope.languagesSelected.length; i++) {
             languageT += "+language:" + $scope.languagesSelected[i];
         }
-        if ($scope.selectedItem != null) {
-            languageT += "+language:" + $scope.selectedItem.display;
-        }
+        
         return languageT;
     }
     $scope.gitAPI = function (locationT) {
