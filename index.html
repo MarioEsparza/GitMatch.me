@@ -1,5 +1,7 @@
-﻿<html ng-app="GitMatchApp">
+<html ng-app="GitMatchApp">
 <head>
+    <!-- Full Contact API = 2345d9a6b425b1c8 -->
+    <link rel="stylesheet" href="https://gitcdn.link/repo/angular/bower-material/master/angular-material.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Git Match App</title>
@@ -11,10 +13,19 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <!-- Angular -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-route.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.0/angular-animate.min.js"></script>
+    <script src="Scripts/angular.min.js"></script>
+    <script src="Scripts/angular-animate.min.js"></script>
+    <script src="Scripts/angular-aria.min.js"></script>
+    <!-- Angular Material for Other Programming Languages -->
+    <link href="css/angular-material.min.css" rel="stylesheet" />
+    <script src="Scripts/angular-material.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-messages.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap.min.js"></script>
+
+<!-- AngularJS Material Javascript using GitCDN to load directly from `bower-material/master` -->
+    <!--Chart JS -->
+    <script src="Scripts/Chart.min.js"></script>
     <!-- Google Places JS API -->
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8&libraries=places"></script>
     <!-- Fonts -->
@@ -50,13 +61,20 @@
                     <li>
                         <a href="#contact">Contact</a>
                     </li>
+                    <li>
+                        <a href="#!/results">Results</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
+
+
     <!-- Views -->
     <div ng-view></div>
+
+
     <!-- Google API Dummy Div-->
     <div id="service-helper"></div>
     <!-- JS Scripts -->
@@ -67,13 +85,14 @@
     <script src="js/routes/viewRoutes.js"></script>
     <!-- Services -->
     <script src="js/services/locationService.js"></script>
-    <script src="js/services/CheckedOutService.js"></script>
+    <script src="js/services/topLocationService.js"></script>
+    <script src="js/services/matchService.js"></script>
     <!-- Controllers -->
     <script src="js/controllers/HomeController.js"></script>
-
     <script>
-
+        
     </script>
-
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </body>
 </html>
