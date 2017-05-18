@@ -1,4 +1,4 @@
-﻿// Routes
+// Routes
 app.config(function ($routeProvider) {
     $routeProvider
 
@@ -6,6 +6,10 @@ app.config(function ($routeProvider) {
             templateUrl: 'views/home.html',
             controller: 'HomeController'
         })
+           .when('/results', {
+               templateUrl: 'views/results.html',
+               controller: 'HomeController'
+           })
         /*
         .when('/checkout', {
             templateUrl: 'views/checkout.html',
