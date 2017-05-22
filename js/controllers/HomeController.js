@@ -1,4 +1,4 @@
-app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', 'locationService', 'matchService', function ($scope, $timeout, $http, $sce, $location, locationService, matchService) {
+app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', 'locationService', 'matchService', 'repoService', function ($scope, $timeout, $http, $sce, $location, locationService, matchService, repoService) {
     //Variables
     var APIkey = "AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8"
     var resultLength = null;
