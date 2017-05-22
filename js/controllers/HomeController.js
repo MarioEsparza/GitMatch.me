@@ -1,4 +1,4 @@
-app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', 'locationService', 'matchService', function ($scope, $timeout, $http, $sce, $location, locationService, matchService) {
+app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', 'locationService', 'matchService', 'repoService', function ($scope, $timeout, $http, $sce, $location, locationService, matchService, repoService) {
     //Variables
     var APIkey = "AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8"
     var resultLength = null;
@@ -7,6 +7,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     var extendedSearchRadius = "80468"; //50 miles in meters
     var nearbyLocationList = [];
     var languangeToken = "";
+    var userStarCount = 0;
     $scope.getGitAttempts = 0;
     $scope.selected = "";
     
@@ -284,8 +285,28 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             resultLength = $scope.returnData.total_count;
             console.log("GitHub # of Users: ", $scope.returnData.total_count);
             console.table($scope.returnData.items);
-
-            if (resultLength < 5) {
+		
+	    // gets repos for each individual 
+            for (var index = 0; index < arrayOfUsernames.length; index++) {
+                var repoData = repoService.getRepos(arrayOfUsernames[index]);
+                // after getting all the repos for the user,
+                // adds all the stars for each user to give that person
+                // a "total star" rating
+                repoData.then(function(response) {
+                    $scope.allRepoData = response;
+                    console.table($scope.allRepoData);
+                    var numberOfRepos = $scope.allRepoData.length;
+                    userStarCount = 0;
+                    
+                    for (var index = 0; index < numberOfRepos; index++) {
+                        userStarCount += $scope.allRepoData[index].stargazers_count;
+                    }
+                    console.log("Total star count for this user is: " + userStarCount);
+                });
+            }
+            console.table($scope.returnData.items);
+            
+	    if (resultLength < 5) {
                 //If GitHub API results are less than 5, then search nearby location
                 //$scope.gitAPI(nearbyLocationList[0]);
 
