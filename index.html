@@ -1,12 +1,14 @@
-<html ng-app="GitMatchApp">
+﻿<html ng-app="GitMatchApp">
 <head>
     <!-- Full Contact API = 2345d9a6b425b1c8 -->
     <link rel="stylesheet" href="https://gitcdn.link/repo/angular/bower-material/master/angular-material.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Git Match App</title>
+    <title>GitMatch</title>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Easing JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <!-- BootStrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" >
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
@@ -25,7 +27,9 @@
 
 <!-- AngularJS Material Javascript using GitCDN to load directly from `bower-material/master` -->
     <!--Chart JS -->
-    <script src="Scripts/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <!--<script src="Scripts/Chart.min.js"></script>-->
+
     <!-- Google Places JS API -->
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8&libraries=places"></script>
     <!-- Fonts -->
@@ -40,41 +44,65 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
 <body>
-    <!-- Nav -->
-    <nav class="navbar navbar-default navbar-fixed-top topnav" role="navigation">
-        <div class="container topnav">
-            <!-- Mobile display -->
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
+        <div class="container">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+                    <i class="fa fa-bars"></i>
                 </button>
-                <a class="navbar-brand topnav" href="#"><i class="fa fa-github" aria-hidden="true"></i> GitHub API Test</a>
+                <a class="navbar-brand page-scroll" href="#page-top">
+                    <i class="fa fa-github" aria-hidden="true"></i> Git<span class="bold">Match</span>
+                </a>
             </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href="#about">About</a>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
+                <ul class="nav navbar-nav">
+                    <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                    <li class="hidden">
+                        <a href="#page-top"></a>
                     </li>
                     <li>
-                        <a href="#contact">Contact</a>
+                        <a href="#!/location">Location Search</a>
                     </li>
                     <li>
-                        <a href="#!/results">Results</a>
+                        <a class="page-scroll" href="#about">About</a>
                     </li>
                 </ul>
             </div>
+            <!-- /.navbar-collapse -->
         </div>
+        <!-- /.container -->
     </nav>
-
 
 
     <!-- Views -->
     <div ng-view></div>
 
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loading-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-vertical-align">
+                <div class="modal-align-center">
+                    <div class="modal-content">
+                        <div class="modal-header">
 
+                            <h4 class="modal-title" id="myModalLabel"> Results Loading...</h4>
+                        </div>
+                        <div class="modal-body">
+                            <img class="ajax-loader" src="https://upload.wikimedia.org/wikipedia/commons/d/de/Ajax-loader.gif" />
+                        </div>
+                        <div class="modal-footer">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
     <!-- Google API Dummy Div-->
     <div id="service-helper"></div>
     <!-- JS Scripts -->
@@ -87,12 +115,44 @@
     <script src="js/services/locationService.js"></script>
     <script src="js/services/topLocationService.js"></script>
     <script src="js/services/matchService.js"></script>
+    <script src="js/services/jsonService.js"></script>
     <!-- Controllers -->
     <script src="js/controllers/HomeController.js"></script>
     <script>
-        
+
+
+        // jQuery to collapse the navbar on scroll
+        function collapseNavbar() {
+            if ($(".navbar").offset().top > 50) {
+                $(".navbar-fixed-top").addClass("top-nav-collapse");
+
+            } else {
+                $(".navbar-fixed-top").removeClass("top-nav-collapse");
+            }
+        }
+
+        $(window).scroll(collapseNavbar);
+        $(document).ready(collapseNavbar);
+
+        // jQuery for page scrolling feature - requires jQuery Easing plugin
+        $(function () {
+            $('a.page-scroll').bind('click', function (event) {
+                var $anchor = $(this);
+                $('html, body').stop().animate({
+                    scrollTop: $($anchor.attr('href')).offset().top
+                }, 1500, 'easeInOutExpo');
+                event.preventDefault();
+            });
+        });
+
+        // Closes the Responsive Menu on Menu Item Click
+        $('.navbar-collapse ul li a').click(function () {
+            $(".navbar-collapse").collapse('hide');
+        });
+
     </script>
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
 </body>
+
 </html>
