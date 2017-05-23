@@ -364,7 +364,10 @@ figcaption.ratings a:hover{
 
 
 @media (min-width:320px)  { 
- 
+  svg{
+      height:50%;
+      width:50%;
+  }
 	
 	}/* smartphones, iPhone, portrait 480x320 phones */ 
 
