@@ -1,6 +1,7 @@
 app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', '$anchorScroll','locationService', 'matchService', 'jsonService','$q', function ($scope, $timeout, $http, $sce, $location, $anchorScroll, locationService, matchService, jsonService,$q) {
     //Variables
     const googleAPIkey = "AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8"
+    var OAuthUrl = "https://github.com/login/oauth/authorize?client_id=f9d85111ad2fea5dd1a9&redirect_uri=http://beta-gitnear.azurewebsites.net";
     var weightedLanguages = [];
     var topFive = [];
     $scope.matchNearbyLocations = [];
@@ -20,11 +21,32 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     $scope.showResults = false;
     $scope.getGitAttempts = 0;
     $scope.selected = "";
-
     $scope.searchRepo = "";
     $scope.selectedRepo = "";
     $scope.repoList = [];
     $scope.repoValue = {};
+    var usernameSender = "";
+    var usernameReceiver = "";
+    // Send Email Function
+    $scope.sendEmail = function () {
+        if ($scope.userName.toLowerCase() == "bareinhard") {
+            var emailJSON = {
+                emailAddress: "brettreinhard@gmail.com",
+                repo: 'https://github.com/' + $scope.selectedRepo.value,
+                usernameSender: usernameSender,
+                usernameReceiver: usernameReceiver
+            }
+            $http.post('https://prod-18.southcentralus.logic.azure.com:443/workflows/c0ecbbfc0eba409281d256ff34c7a6c0/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bzv-FvzJhnMFl8ocz3TrJi4mOZs4MciyMix4W2D3058', emailJSON).then(function (data) {
+                console.log(data);
+            }, function (error) {
+                console.log(error);
+            })
+        }
+        window.location.replace("https://github.com/login/oauth/authorize?client_id=f9d85111ad2fea5dd1a9&redirect_uri=http://beta-gitnear.azurewebsites.net/#!/emailsent");
+
+    };
+
+
 
     $scope.getRepos = function (text) {
 
@@ -683,12 +705,14 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 var deffered;
                 var angularDeferred;
                 var foreachRepoCallback;
+                usernameSender = $scope.userName;
                 for (var j = 0; j < matchesData.length; j++) {
                     console.log(matchesData[j]);
                     //console.log("J: ", j);
                     console.log("matchesData[j].login", matchesData[j].login);
                     console.log("$scope.returnMatchData.login", $scope.userName);
                     if (matchesData[j].login.toLowerCase() != $scope.userName.toLowerCase()) {
+                        
 
                         deferred = $q.defer();
                         var getData = matchService.getRepos(matchesData[j].login, j);
@@ -800,7 +824,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             }
             
             
-
+            usernameReceiver = matchesData[topFive[0]].login;
+            console.log("Find mah email",matchesData[topFive[0]]);
             var getData = matchService.getLocation(matchesData[topFive[0]].login);
             getData.then(function (response) {
                 $scope.currentMatch = response;
@@ -1631,6 +1656,17 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         });
         return ret;
     }
-
+    // Function to save username and email to database for future Collab Requests
+    $scope.addEmailToDB = function () {
+        $http.get('users/email').then(function (response) {
+            var addEmailJSON = {
+                emailAddress: response.data.email.toLowerCase(),
+                username: $scope.username.toLowerCase()
+            }
+            $http.post('https://prod-05.southcentralus.logic.azure.com:443/workflows/f1ab391d3db24a9a8e2a99a6df7095d4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q3gqMfaUaffxyU4ZQo4OaRSO1Q-8pQ6aOo0FUs-EItg', addEmailJSON).then(function (data) {
+                console.log("Thank you your email has been saved");
+            })
+        })
+    }
 
 }]);
