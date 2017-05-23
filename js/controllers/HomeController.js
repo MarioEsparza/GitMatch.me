@@ -2,6 +2,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     //Variables
     const googleAPIkey = "AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8"
     var weightedLanguages = [];
+    var topFive = [];
     $scope.matchNearbyLocations = [];
     $scope.matchNearbyAttempts = 0;
     var lanaguageMultiplier = 1;
@@ -434,9 +435,11 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
 
                             } else {
-                                for (var i = 0; i < matchLanguagesArray.length; i++) {
-                                    weightedLanguages[matchLanguagesCount[i]] = matchLanguagesArray[i];
-                                }
+                               
+                                    for (var i = 0; i < matchLanguagesArray.length; i++) {
+                                        weightedLanguages[matchLanguagesCount[i]] = matchLanguagesArray[i];
+                                    }
+                                
 
                                 $scope.displayResults(matchLanguagesArray, matchLanguagesCount, userData, userRepoData, matchesData);
                             }
@@ -775,23 +778,37 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             console.log("match array: ", bestMatchArrayLocation);
             console.log("match array count: ", bestMatchArrayCount);
             var maxCount=0;
-            var maxIndex=0;
-            for (var o = 0; o < bestMatchArrayLocation.length; o++) {
-                if (bestMatchArrayCount[o] > maxCount) {
-                    maxCount = bestMatchArrayCount[o];
-                    maxIndex = bestMatchArrayLocation[o];
+            var maxIndex = 0;
+            topFive = [];
+            for (var p = 0; p < 5; p++) {
+                maxIndex = 0;
+                maxCount = 0;
+                for (var o = 0; o < bestMatchArrayLocation.length; o++) {
+                    if (bestMatchArrayCount[o] > maxCount) {
+                        maxCount = bestMatchArrayCount[o];
+                        maxIndex = bestMatchArrayLocation[o];
+                    }
                 }
+                console.log(maxCount);
+                console.log(maxIndex);
+                topFive.push(bestMatchArrayLocation[bestMatchArrayLocation.indexOf(maxIndex)]);
+                bestMatchArrayCount.splice(bestMatchArrayLocation.indexOf(maxIndex),1);
+                bestMatchArrayLocation.splice(bestMatchArrayLocation.indexOf(maxIndex),1);
+            }
+            for (var x = 0; x < 5; x++) {
+                console.log("TOP FIVE", matchesData[topFive[x]].login);
             }
             
+            
 
-            var getData = matchService.getLocation(matchesData[maxIndex].login);
+            var getData = matchService.getLocation(matchesData[topFive[0]].login);
             getData.then(function (response) {
                 $scope.currentMatch = response;
 
             })
 
             //Displays the bestMatch's repos. 
-            var getData = matchService.getRepos(matchesData[maxIndex].login);
+            var getData = matchService.getRepos(matchesData[topFive[0]].login);
             getData.then(function (response) {
                 //Stores the language for every repo found
                 $scope.currentMatchRepo = response;

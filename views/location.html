@@ -64,6 +64,9 @@
         </div>
     </div>
 </header>
+
+
+
 <md-autocomplete md-dropdown-position="top" md-selected-item-change="addRepo(selectedRepo)" md-selected-item="selectedRepo" md-search-text="searchRepo" md-items="item in getRepos(searchRepo)" md-item-text="item.display" md-min-length="0" placeholder="Type something">
     <md-item-template class="auto-complete">
         <span md-highlight-text="searchRepo">{{item.display}}</span>
