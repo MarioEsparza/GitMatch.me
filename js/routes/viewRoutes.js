@@ -1,4 +1,4 @@
-﻿// Routes
+// Routes
 app.config(function ($routeProvider) {
     $routeProvider
 
@@ -10,6 +10,10 @@ app.config(function ($routeProvider) {
                templateUrl: 'views/location.html',
                controller: 'HomeController'
            })
+        .when('/emailsent', {
+            templateUrl: 'views/emails.html',
+            controller: 'HomeController'
+        })
         /*
         .when('/checkout', {
             templateUrl: 'views/checkout.html',
