@@ -1,0 +1,160 @@
+﻿<!-- Header-->
+<header id="top" class="header">
+    <div class="container text-center vertical-center app-container">
+        <div class="row">
+            <div class="col-md-12">
+
+                <span class="fa-stack fa-4x">
+                    <i class="fa fa-github fa-stack-2x"></i>
+                </span>
+
+                <h1>GitMatch.me</h1>
+                <p class="lead">Find local collaborators!</p>
+
+                <!-- Form -->
+                <form name="userForm" ng-submit="findNear()" novalidate>
+                    <!-- Location -->
+                    <div class="form-group" ng-class="{ 'has-error' : userForm.location.$invalid && !userForm.location.$pristine }">
+                        <div class="input-group  input-group-lg col-sm-6 col-sm-offset-3">
+
+                            <div class="input-group-btn check-input-icon">
+                                <div class="btn-group">
+                                    <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
+                                        <i class="fa fa-cogs" aria-hidden="true"></i> <span id="searchLabel">Filter</span> <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+
+                                        <li ng-repeat="langName in languages" class="languages">
+                                            <label style="color:black">
+                                                <input class="small" type="checkbox"
+                                                       name="languagesSelected[]"
+                                                       value="{{langName}}"
+                                                       ng-checked="languagesSelected.indexOf(langName) > -1"
+                                                       ng-click="toggleSelection(langName)">&nbsp; {{langName}}
+                                            </label>
+                                        </li>
+                                        <li class="languages">
+                                            <!-- Filters/Auto-Complete -->
+                                            <div class="autocomplete hidden-xs">
+                                                <!-- Filters/Auto-Complete -->
+                                                <md-autocomplete md-dropdown-position="bottom" md-selected-item-change="addLang(searchText)" md-selected-item="selectedItem" md-search-text="searchText" md-items="item in getMatches(searchText)" md-item-text="item.display" md-min-length="0" placeholder="Type something">
+                                                    <md-item-template class="auto-complete">
+                                                        <span md-highlight-text="searchText">{{item.display}}</span>
+
+                                                    </md-item-template>
+                                                    <md-not-found>No matches found.</md-not-found>
+                                                </md-autocomplete>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <input type="text" class="form-control" name="location" id="location" placeholder="Search location" ng-model="location" ng-blur="removeSpaces(location)" required>
+                            <!-- Submit -->
+                            <span class="input-group-btn  check-input-icon">
+                                <button type="submit" class="btn btn-default btn-lg" ng-disabled="userForm.$invalid"><i class="fa fa-search" aria-hidden="true"></i></button>
+                            </span>
+
+                        </div>
+                        <p ng-show="userForm.location.$invalid && !userForm.location.$pristine" class="help-block">A location is required.</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Result -->
+<!--Match Results-->
+<section id="nearby-section" class="result-section" ng-show="showResults">
+    <div class="container text-center vertical-center app-container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    <div class="chart">
+                        <canvas id="canvas" height="300" width="300"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h1>Top Repo</h1>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="container">
+
+                                <div class="col-md-12">
+                                    <h2> Username</h2>
+                                    <p><strong>Note:</strong> The <strong>data-parent</strong> attribute makes sure that all collapsible elements under the specified parent will be closed when one of the collapsible item is shown.</p>
+                                    <div class="panel-group" id="accordion">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Collapsible Group 1</a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapse1" class="panel-collapse collapse in">
+                                                <div class="panel-body">
+                                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                                                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                                    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Collapsible Group 2</a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapse2" class="panel-collapse collapse">
+                                                <div class="panel-body">
+                                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                                                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                                    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">Collapsible Group 3</a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapse3" class="panel-collapse collapse">
+                                                <div class="panel-body">
+                                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                                                    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                                    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Place this tag where you want the button to render. -->
+                                <a class="github-button" href="https://github.com/ntkme" aria-label="Follow @ntkme on GitHub">Follow @ntkme</a>
+                                <!-- Place this tag where you want the button to render. -->
+                                <a class="github-button" href="https://github.com/ntkme/github-buttons/subscription" data-icon="octicon-eye" aria-label="Watch ntkme/github-buttons on GitHub">Watch</a>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div><!--.container-->
+
+
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- Button to be used for Following the user in GitMatch  Place this tag where you want the button to render.
+<a class="github-button" href="{{userHTML}}" data-size="large" data-show-count="true" aria-label="Follow @{{username}} on GitHub">Follow @{{username}}</a>
+-->

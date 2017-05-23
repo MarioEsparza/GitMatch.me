@@ -2,105 +2,190 @@
 <header id="top" class="header">
     <div class="container text-center vertical-center app-container">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-sm-12 col-md-12 col-lg-12">
 
                 <span class="fa-stack fa-4x">
                     <i class="fa fa-github fa-stack-2x"></i>
                 </span>
+                <p class="lead">Get matched with similar local developers!</p>
 
-                <h1>Github API Test </h1>
-                <p class="lead">Find local collaborators!</p>
-
-                <!-- Form -->
-                <form name="userForm" ng-submit="findNear()" novalidate>
-                    <!-- Location -->
-                    <div class="form-group" ng-class="{ 'has-error' : userForm.location.$invalid && !userForm.location.$pristine }">
-                        <div class="input-group  input-group-lg col-sm-6 col-sm-offset-3">
-
-                           <div class="input-group-btn check-input-icon">
-                                <div class="btn-group">
-                                    <button class="btn btn-default btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
-                                        <i class="fa fa-cogs" aria-hidden="true"></i> <span id="searchLabel">Filter</span> <span class="caret"></span>
-                                    </button>
-                                    <ul class="dropdown-menu"  role="menu">
-                                        
-                                            <li ng-repeat="langName in languages" class="languages">
-                                                <label style="color:black">
-                                                    <input class="small" type="checkbox"
-                                                           name="languagesSelected[]"
-                                                           value="{{langName}}"
-                                                           ng-checked="languagesSelected.indexOf(langName) > -1"
-                                                           ng-click="toggleSelection(langName)">&nbsp; {{langName}}
-                                                </label>
-                                            </li>
-                                        <li class="languages">
-                                            <!-- Filters/Auto-Complete -->
-                                            <md-autocomplete  md-dropdown-position="bottom" md-selected-item-change="addLang(searchText)" md-selected-item="selectedItem" md-search-text="searchText" md-items="item in getMatches(searchText)" md-item-text="item.display" md-min-length="0" placeholder="Type something">
-                                                <md-item-template class="auto-complete">
-                                                    <span md-highlight-text="searchText">{{item.display}}</span>
-
-                                                </md-item-template>
-                                                <md-not-found>No matches found.</md-not-found>
-                                            </md-autocomplete>                                      
-                                        </li>                                                                               
-                                    </ul>
+                <!-- Match Form -->
+                <div id="searchbar" data-spy="affix" data-offset-top="">
+                    <form name="userForm" ng-submit="findMatch()" novalidate>
+                        <!-- Match -->
+                        <div class="form-group" ng-class="{ 'has-error' : userForm.username.$invalid && !userForm.username.$pristine }">
+                            <div class="input-group  input-group-md col-xs-8 col-xs-offset-2 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4">
+                                <div class="input-group-btn ">
                                 </div>
+                                <input id="match-input" type="text" class="form-control" name="username" id="username" placeholder="Enter you GitHub Username" ng-model="userName" required>
+                                <!-- Submit -->
+                                <span class="input-group-btn">
+                                    <button data-target="#loading-modal" role="button" data-toggle="modal" type="submit" class="btn  btn-success " ng-disabled="userForm.$invalid">MATCH <i class="fa fa-check" aria-hidden="true"></i></button>
+                                </span>
+
                             </div>
-
-                            <input type="text" class="form-control" name="location" id="location" placeholder="Search location" ng-model="location" ng-blur="removeSpaces(location)" required>
-                            <!-- Submit -->
-                            <span class="input-group-btn  check-input-icon">
-                                <button type="submit" class="btn btn-default btn-lg" ng-disabled="userForm.$invalid"><i class="fa fa-search" aria-hidden="true"></i></button>
-                            </span>
-
+                            <p ng-show="userForm.username.$invalid && !userForm.username.$pristine" class="help-block">A username is required. No spaces allowed.</p>
                         </div>
-                        <p ng-show="userForm.location.$invalid && !userForm.location.$pristine" class="help-block">A location is required.</p>
+                    </form>
                     </div>
-                </form>
-            </div>
-            <!-- Match Me -->
-            <button type="button" class='btn btn-success btn-lg' data-toggle="modal" data-target="#match-modal">Match Me <i class="fa fa-user-plus" aria-hidden="true"></i></button>
+                </div>
+
         </div>
     </div>
 </header>
+<!-- This was added after PUSH!------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ -->
+<!--<md-autocomplete  md-dropdown-position="top"  md-selected-item="selectedRepo" md-search-text="searchRepo" md-items="item in getRepos(searchRepo)" md-item-text="item.display" md-min-length="0" placeholder="Type something">
+                                                    <md-item-template class="auto-complete">
+                                                        <span md-highlight-text="searchRepo">{{item.display}}</span>
+
+                                                    </md-item-template>
+                                                    <md-not-found>No matches found.</md-not-found>
+                                                </md-autocomplete> -->
 
 <!-- Result -->
 
+<!--Match Results-->
+<section id="match-section" class="result-section" ng-show="showResults">
+    <div class="container app-container">
+        <div class="row">
+            <div class="col-md-12">
+            <!-- User Infor Display -->
+                <div class="col-md-6">
+                    <div class="row"> 
+                        <div class="col-md-12" ng-model="userData">
+                            <div class="well profile" >
+                                <div class="col-sm-12">
+                                    <div class="col-xs-12 col-sm-12 col-md-4 text-center">
+                                        <figure>
+                                            <a ng-href="{{userData.html_url}}">
+                                                <img class="img-responsive git-user-avatar" ng-src="{{userData.avatar_url}}" alt="user-avatar" />
+                                            </a>
+                                        </figure>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12  col-sm-8">
+                                        <h2> {{userData.login}}</h2>
+                                        <p><strong><i class="fa fa-map-marker" aria-hidden="true"></i> Location: </strong> {{userData.location}} </p>
+                                        <p><strong>Bio: </strong>{{userData.bio}} </p>
 
+                                    </div>
+             
+                                </div>
+                                <div class="col-md-12 divider ">
+                                    <h4><strong>Languages</strong></h4>
+                                    <canvas id="myChart2"></canvas>
+                                </div>
+                                <div class="col-xs-12 divider text-center">
+                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                        <p>Repos</p>
+                                        <h2><strong> {{userData.public_repos}} </strong></h2>
+                                 
+                                        <button class="btn btn-success btn-block" ng-href="{{userRepos}}"><span class="fa fa-code"></span> View Repos </button>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                        <p><small>Followers</small></p>
+                                        <h2><strong> {{userData.followers}} </strong></h2>
+                                        <!-- Place this tag where you want the button to render. -->
+                                        <a class="btn btn-default btn-block" ng-href="{{userData.html_url}}"><span class="fa fa-github "></span> Follow </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Matches Display-->
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12 " >
+                            <div class="well profile-matches">
+                                <div class="col-xs-12 col-sm-12 col-md-12 text-center alert-success">
+                                    <h2>Match <i class="fa fa-check" aria-hidden="true"></i></h2>     
+                                      
+                                        <a class="btn btn-success btn-block"><span class="fa handshake-o"></span><p><strong>Send Collab Request</strong></p></a>
+
+                                </div>
+                                <div class="col-sm-12">
+
+                                    <div class="col-xs-12 col-sm-12 col-md-4 text-center ">
+                                        <figure>
+                                            <a ng-href="{{currentMatch.html_url}}">
+                                                <img class="img-responsive git-user-avatar" ng-src="{{currentMatch.avatar_url}}" alt="user-avatar" />
+                                            </a>
+                                        </figure>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12  col-sm-8">
+                                        <h2> {{currentMatch.login}}</h2>
+                                        <p><strong><i class="fa fa-map-marker" aria-hidden="true"></i> Location: </strong> {{currentMatch.location}} </p>
+                                        <p><strong>Bio: </strong>{{currentMatch.bio}} </p>
+
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12 divider ">
+                                    <h4><strong>Matching Languages</strong></h4>
+                                    <canvas id="myChartMatch"></canvas>
+                                </div>
+                                <div class="col-xs-12 divider text-center">
+                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                        <p>Repos</p>
+                                        <h2><strong> {{currentMatch.public_repos}} </strong></h2>
+
+                                        <button class="btn btn-info btn-block" ng-href="{{userRepos}}"><span class="fa fa-code"></span> View Repos </button>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                        <p><small>Followers</small></p>
+                                        <h2><strong> {{currentMatch.followers}} </strong></h2>
+                                        <!-- Place this tag where you want the button to render. -->
+                                        <a class="btn btn-default btn-block" ng-href="{{userData.html_url}}"><span class="fa fa-github "></span> Follow </a>
+                                    </div>
+   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loading-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-vertical-align">
+            <div class="modal-align-center">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <h1>Searching GitHub Users... <i id="loading-icon" class="fa fa-circle-o-notch  fa-3x fa-fw fa-spin "></i></h1>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Repo Details Modal -->
+<div class="modal fade" id="details-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-vertical-align">
+            <div class="modal-align-center">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <h1>Searching GitHub Users... <i id="loading-icon" class="fa fa-circle-o-notch  fa-3x fa-fw fa-spin "></i></h1>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
 <!-- Button to be used for Following the user in GitMatch  Place this tag where you want the button to render.
 <a class="github-button" href="{{userHTML}}" data-size="large" data-show-count="true" aria-label="Follow @{{username}} on GitHub">Follow @{{username}}</a>
 -->
 
 
-
-<!-- Modal -->
-<div class="modal fade" id="match-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog " role="document">
-        <div class="modal-content ">
-
-            <div class="modal-body">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #fff;"><span aria-hidden="true">&times;</span></button>
-                <h1>GitMatch </h1>
-                <!-- Match Form -->
-                <form name="userForm" ng-submit="findMatch()" novalidate>
-                    <!-- Location -->
-                    <div class="form-group" ng-class="{ 'has-error' : userForm.username.$invalid && !userForm.username.$pristine }">
-                        <div class="input-group  input-group-sm col-sm-8 col-sm-offset-2">
-                            <div class="input-group-btn ">
-                            </div>
-                            <input type="text" class="form-control" name="username" id="username" placeholder="Enter you GitHub Username" ng-model="userName" required>
-                            <!-- Submit -->
-                            <span class="input-group-btn  ">
-                                <button type="submit" class="btn btn-sm btn-success " ng-disabled="userForm.$invalid"><i class="fa fa-check" aria-hidden="true"></i></button>
-                            </span>
-
-                        </div>
-                        <p ng-show="userForm.username.$invalid && !userForm.username.$pristine" class="help-block">A username is required. No spaces allowed.</p>
-                    </div>
-                </form>
-                <div ng-bind-html="renderHtml(errorMessage)"></div>
-            </div>
-
-        </div>
-    </div>
-</div>

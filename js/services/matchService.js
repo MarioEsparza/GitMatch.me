@@ -1,4 +1,4 @@
-﻿app.factory('matchService', ['$http', '$q', function ($http, $q) {
+app.factory('matchService', ['$http', '$q', function ($http, $q) {
 
     var matchService = function () {
     };
@@ -14,7 +14,8 @@
                              .then(function (result) {
                                  return result.data;
                              });
-    };
+        };
+
         return matchService;
 
 }]);

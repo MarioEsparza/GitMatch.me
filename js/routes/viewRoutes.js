@@ -1,4 +1,4 @@
-// Routes
+﻿// Routes
 app.config(function ($routeProvider) {
     $routeProvider
 
@@ -6,8 +6,8 @@ app.config(function ($routeProvider) {
             templateUrl: 'views/home.html',
             controller: 'HomeController'
         })
-           .when('/results', {
-               templateUrl: 'views/results.html',
+           .when('/location', {
+               templateUrl: 'views/location.html',
                controller: 'HomeController'
            })
         /*
