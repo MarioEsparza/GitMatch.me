@@ -1,6 +1,13 @@
-app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', '$anchorScroll','locationService', 'matchService', 'jsonService', function ($scope, $timeout, $http, $sce, $location, $anchorScroll, locationService, matchService, jsonService) {
+app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', '$anchorScroll','locationService', 'matchService', 'jsonService','$q', function ($scope, $timeout, $http, $sce, $location, $anchorScroll, locationService, matchService, jsonService,$q) {
     //Variables
     const googleAPIkey = "AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8"
+    var OAuthUrl = "https://github.com/login/oauth/authorize?client_id=f9d85111ad2fea5dd1a9&redirect_uri=http://beta-gitnear.azurewebsites.net";
+    var weightedLanguages = [];
+    var topFive = [];
+    var matchScore = [];
+    $scope.matchNearbyLocations = [];
+    $scope.matchNearbyAttempts = 0;
+    var lanaguageMultiplier = 1;
     var resultLength = null;
     var latitude, longitude = null;
     var searchRadius = "40234"; // 25 miles in meters
@@ -11,14 +18,47 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     var googleMapStyle1 = "&style=element:labels|visibility:off|color:0xf49f53&style=feature:water|element:geometry|color:0x42a9ee|lightness:17&style=feature:landscape|element:geometry|color:0xf5f5f5|lightness:20&style=feature:road.highway|element:geometry.fill|color:0xffffff|lightness:17&style=feature:road.highway|element:geometry.stroke|color:0xffffff|lightness:29|weight:0.2&style=feature:road.arterial|element:geometry|color:0xffffff|lightness:18&style=feature:road.local|element:geometry|color:0xffffff|lightness:16&style=feature:poi|element:geometry|color:0xf5f5f5|lightness:21&style=feature:poi.park|element:geometry|color:0xdedede|lightness:21&style=element:labels.text.stroke|visibility:off|color:0xffffff|lightness:16&style=element:labels.text.fill|saturation:36|color:0x333333|lightness:40&style=element:labels.icon|visibility:off&style=feature:transit|element:geometry|color:0xf2f2f2|lightness:19&style=feature:administrative|element:geometry.fill|color:0xfefefe|lightness:20&style=feature:administrative|element:geometry.stroke|color:0xfefefe|lightness:17|weight:1.2";
     var myChart = null;
     var myChartMatch = null;
+    var bestMatch_Language = [];
+    var gotTop = false;
+    $scope.currentTop = 0;
     $scope.showResults = false;
     $scope.getGitAttempts = 0;
     $scope.selected = "";
-
     $scope.searchRepo = "";
     $scope.selectedRepo = "";
     $scope.repoList = [];
     $scope.repoValue = {};
+    var usernameSender = "";
+    var usernameReceiver = "";
+    // Send Email Function
+    $scope.sendEmail = function () {
+        if ($scope.userName.toLowerCase() == "bareinhard") {
+            if ($scope.selectedRepo.value != "none") {
+                var emailJSON = {
+                    emailAddress: "brettreinhard@gmail.com",
+                    repo: 'https://github.com/' + $scope.selectedRepo.value,
+                    usernameSender: usernameSender,
+                    usernameReceiver: usernameReceiver
+                }
+            } else {
+                var emailJSON = {
+                    emailAddress: "brettreinhard@gmail.com",
+                    repo: $scope.selectedRepo.value,
+                    usernameSender: usernameSender,
+                    usernameReceiver: usernameReceiver
+                }
+            }
+            $http.post('https://prod-18.southcentralus.logic.azure.com:443/workflows/c0ecbbfc0eba409281d256ff34c7a6c0/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bzv-FvzJhnMFl8ocz3TrJi4mOZs4MciyMix4W2D3058', emailJSON).then(function (data) {
+                console.log(data);
+            }, function (error) {
+                console.log(error);
+            })
+        }
+        //window.location.replace("https://github.com/login/oauth/authorize?client_id=f9d85111ad2fea5dd1a9&redirect_uri=http://beta-gitnear.azurewebsites.net/#!/emailsent");
+        //Email Sent Success Goes Here
+    };
+
+
 
     $scope.getRepos = function (text) {
 
@@ -29,13 +69,20 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         return ret;
     }
 
+    // Disable Menu from closing after selecting a auto complete field
     $('.md-virtual-repeat-offsetter').bind('click', function (e) {
         e.stopPropagation();
-        +$('.md-virtual-repeat-offsetter').css({ marginTop: '=28px' });
+        $('.md-virtual-repeat-offsetter').css({ marginTop: '=28px' });
     });
+    // Stops click event from bubbling up to built in dropdown-menu click event function
+    $('.dropdown-menu').bind('click', function (e) {
+        e.stopPropagation();
+    })
+
+   
     
     // Locations to be used as Check Boxes
-    $scope.languages = ["Javascript", "Python", "C#"];
+    $scope.languages = ["JavaScript", "Python", "C#"];
 
     var getData = jsonService.getColors();
     getData.then(function (response) {
@@ -54,10 +101,35 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     // Selected languages
     $scope.languagesSelected = [];
 
+    $scope.addLang = function (searchText) {
+        if (searchText != "" && !$scope.languages.includes(searchText)) {
+            $scope.languages.push(searchText);
+            $scope.toggleSelection(searchText);
+            $scope.searchText = "";
+            if ($scope.languages.length > 8) {
+                $('.autocomplete').addClass('hidden');
+
+            }
+            console.log($scope.languages.length);
+        } else if ($scope.languages.includes(searchText)) {
+            if ($scope.languagesSelected.indexOf(searchText) == -1) {
+                $scope.toggleSelection(searchText);
+                $scope.searchText = "";
+
+            } else {
+
+                $scope.toggleSelection(searchText);
+                $scope.searchText = "";
+            }
+
+
+        }
+
+    }
     // Toggle selection for a given language by name
     $scope.toggleSelection = function toggleSelection(langName) {
         var idx = $scope.languagesSelected.indexOf(langName);
-       
+
         // Is currently selected
         if (idx > -1) {
             $scope.languagesSelected.splice(idx, 1);
@@ -289,7 +361,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     // ------ Show Details of User, list projects
 
     //Match Submit
-    $scope.findMatch = function () {
+    $scope.findMatch = function (location) {
+        $scope.currentTop = 0;
+        gotTop = false;
         var matchLocationToken = null;
         var matchLanguageToken = "";
         var userFound = false;
@@ -309,8 +383,11 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             var getData = matchService.getLocation(usernameToken);
             getData.then(function (response) {
                 $scope.returnMatchData = userData = response;
+                
                 console.log($scope.returnMatchData.login, "'s Location: ", $scope.returnMatchData.location);
-
+                if (location != "formSubmit") {
+                    $scope.returnMatchData.location = location;
+                }
                 //Checks to see if location is not empty
                 if ($scope.returnMatchData.location) {
                     $("#match-input").removeClass('alert-danger');
@@ -375,7 +452,34 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                             console.table($scope.returnData.items);
                             matchesData = $scope.returnData.items;
                           
-                            $scope.displayResults(matchLanguagesArray, matchLanguagesCount, userData, userRepoData, matchesData);
+                            if ($scope.returnData.total_count == 0) {
+                                // Get lat and long from geo code location or
+                                var myLatlng = new google.maps.LatLng(latitude, longitude);
+                                var service = new google.maps.places.PlacesService($('#service-helper').get(0));
+
+                                // Search NearBy Locations
+                                service.nearbySearch({
+                                    location: myLatlng,
+                                    radius: extendedSearchRadius,
+                                    types: ['locality']
+                                    // Call nearbySearchResults
+                                }, matchNearbyResults);
+                                //Call Google NearyBy Locations API using $scope.returnMatchData.location
+                                // Get next location
+                                // then recall findMatch("Next Location"), it now takes a parameter to reuse this
+                                // Limit this use
+
+
+                            } else {
+                               
+                                    for (var i = 0; i < matchLanguagesArray.length; i++) {
+                                        weightedLanguages[matchLanguagesCount[i]] = matchLanguagesArray[i];
+                                    }
+                                
+
+                                $scope.displayResults(matchLanguagesArray, matchLanguagesCount, userData, userRepoData, matchesData);
+                            }
+                            
 
 
                         })
@@ -410,6 +514,28 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             */
         }//End Valid Submit
     };
+
+    function matchNearbyResults(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            console.log("Nearby Search SUCCESS: ", results.length);
+            for (var i = 0; i < results.length; i++) {
+                $scope.matchNearbyLocations[i] = results[i].name.replace(/\s+/g, '-').toLowerCase();
+            }
+            console.log("Nearby Places: ", $scope.matchNearbyLocations);
+
+        }
+        else {
+            console.log("Nearby Search FAIL");
+        }
+
+        // Called within call back
+        if ($scope.matchNearbyAttempts < $scope.matchNearbyLocations.length) {
+
+            $scope.findMatch($scope.matchNearbyLocations[$scope.matchNearbyAttempts]);
+        } else {
+            //Tell user there are no Nearby Developers in your area.
+        }
+    }
 
 
     // Google Geocode & Nearby Function
@@ -485,6 +611,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
     //Unused Function WIP
     $scope.collectRepoLanguages = function (data) {
+        console.log("WHEN IS THIS RUN?");
         angular.forEach(data, function (value, key) {
             //Checks to see if language is not null
             if (value.language) {
@@ -502,7 +629,14 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 }
             }
         });
+        for (var i = 0; i < matchLanguagesArray.length; i++) {
+            weightedLanguages[matchLanguagesCount[i]] = matchLanguagesArray[i];
+        }
+
+        console.log("matchLanguagesArray", matchLanguagesArray);
+        console.log("matchLanguagesCount", matchLanguagesCount);
     }
+    
     //Background Image Function
     $scope.googleBG = function (location) {
         //Determines the zoom for the background image of the match section
@@ -554,6 +688,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         var matchLanguagesArray = [];
         var matchLanguagesCount = [];
         var bestMatchArrayLocation = [];
+        var bestMatchArrayCount = [];
 
         //Hard coded random number currently determines the match i.e matchesData[randomNumber]
         var randomNumber = getRandomInt(0, matchesData.length - 1);
@@ -572,63 +707,80 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         function findBestMatch() {
             var bestMatchNumber = 0;
             var matchingLanguagesCounter = 0;
-
-            fetchEachRepo();
-            displayMatches();
-            /*
-            testAjax();
-            function testAjax() {
-                return Promise.resolve($.ajax({
-                    url: fetchEachRepo(),
-                    success: function () {
-                        displayMatches();
-                    }
-                }));
-            }
-            */
+            // Wait for fetchEachRepo to complete
+            fetchEachRepo().then(function(){
+                displayMatches($scope.currentTop);
+            });
+            
 
 
             function fetchEachRepo() {
+                var promises = [];
+                var deffered;
+                var angularDeferred;
+                var foreachRepoCallback;
+                usernameSender = $scope.userName;
                 for (var j = 0; j < matchesData.length; j++) {
+                    console.log(matchesData[j]);
                     //console.log("J: ", j);
+                    console.log("matchesData[j].login", matchesData[j].login);
+                    console.log("$scope.returnMatchData.login", $scope.userName);
+                    if (matchesData[j].login.toLowerCase() != $scope.userName.toLowerCase()) {
+                        
 
-                    var getData = matchService.getRepos(matchesData[j].login);
-                    getData.then(function (response) {
-                        matchingLanguagesCounter = 0;
-                        //Stores the language for every repo found
-                        $scope.currentMatchRepo = response;
-                        forEachRepo($scope.currentMatchRepo);
+                        deferred = $q.defer();
+                        var getData = matchService.getRepos(matchesData[j].login, j);
+                        promises.push(getData.then(function (response) {
+                            matchingLanguagesCounter = 0;
+                            //Stores the language for every repo found
+                            $scope.currentMatchRepo = response;
+                            promises.push(forEachRepo($scope.currentMatchRepo, response.newIndex));
+                            //console.log("match array2:  ", bestMatchArrayLocation);
+                        }, function error(error) {
+                            console.log("ERROR: NO REPOS FOUND")
 
-                        //console.log("match array2:  ", bestMatchArrayLocation);
-                    }, function error(error) {
-                        console.log("ERROR: NO REPOS FOUND")
-
-                    })
-
-                    if (matchingLanguagesCounter > bestMatchNumber) {
-                        bestMatchNumber = matchingLanguagesCounter;
-                        console.log("New Best Match: ", j, bestMatchNumber);
-                        bestMatchArrayLocation.unshift(j);
-                        //console.log("Best Match Array: ", bestMatchArrayLocation);
+                        }));
                     }
+                    //console.log("Matching Languages Counter",matchingLanguagesCounter);
+                    //console.log("Best Match Number",bestMatchNumber);
+                    //if (matchingLanguagesCounter > bestMatchNumber) {
+                    //    bestMatchNumber = matchingLanguagesCounter;
+                    //    console.log("New Best Match: ", j, bestMatchNumber);
+                    //    if (bestMatchArrayLocation.length == 0) {
+                    //        bestMatchArrayLocation.push(j);
+                    //    } else {
+                    //        bestMatchArrayLocation.unshift(j);
+                    //    }
+                    //    console.log("Best Match Array: ", bestMatchArrayLocation);
+                    //}
 
                 }
                 console.log("Fetching Repo Done");
-
+                return $q.all(promises);
             }
 
-            function forEachRepo(currentMatchRepo) {
-             console.log("Counter In: ", matchingLanguagesCounter);
+            function forEachRepo(currentMatchRepo,index) {
+                var newPromises = [];
+                var newAngularDeferred = $q.defer();
+                
+                newPromises.push(newAngularDeferred.promise);
+                console.log("Counter In: ", matchingLanguagesCounter);
+                console.log(weightedLanguages);
                 angular.forEach(currentMatchRepo, function (value, key) {
                     //Checks to see if the language match with the searcher's array of languages (user looking for matches)
                     if (currentMatchRepo.length) {
                         for (var i = 0; i < language.length; i++) {
                             if (value.language == language[i]) {
+                                lanaguageMultiplier = weightedLanguages.indexOf(value.language);
+                                if (lanaguageMultiplier == -1) {
+                                    lanaguageMultiplier = 1;
+                                }
                                 //Then checks to se if it's not already in array
                                 var matchItemIndex = matchLanguagesArray.indexOf(value.language);
                                 if (matchItemIndex < 0) {
-                                    matchingLanguagesCounter++;
-                                    console.log("Counter++");
+                                    matchingLanguagesCounter = matchingLanguagesCounter + lanaguageMultiplier;
+                                    console.log("Counter++", value.language);
+                                    //bestMatch_Language.push({ lang: value.language, count: matchingLanguagesCounter });
                                     //matchLanguagesArray.push(value.language);
                                     // matchLanguagesCount.push(1)
 
@@ -636,28 +788,86 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                             }
                         }
                     }
+                    newAngularDeferred.resolve();
 
                 });
                 console.log("Counter Out: ", matchingLanguagesCounter);
-                return
+                bestMatchArrayLocation.push(index);
+                bestMatchArrayCount.push(matchingLanguagesCounter);
+
+                console.log("Best Match Array: ", bestMatchArrayLocation);
+                //if (matchingLanguagesCounter > bestMatchNumber) {
+                //    bestMatchNumber = matchingLanguagesCounter;
+                //    console.log("New Best Match: ", index, bestMatchNumber);
+                    
+                //    bestMatchArrayLocation.push(index);
+                //    bestMatchArrayCount.push(matchingLanguagesCounter);
+                    
+                //    console.log("Best Match Array: ", bestMatchArrayLocation);
+                //}
+                return $q.all(newPromises)
             }
 
         }
-
-        function displayMatches() {
-    
+        $scope.nextDisplay = function (index) {
+            
+            ++index;
+            ++$scope.currentTop;
+            console.log(index);
+            displayMatches(index);
+        }
+        $scope.previousDisplay = function (index) {
+            
+            --index;
+            --$scope.currentTop;
+            console.log(index);
+            displayMatches(index);
+        }
+        function displayMatches(index) {
+            matchLanguagesArray = [];
+            matchLanguagesCount = [];
+            console.log(bestMatch_Language);
             bestMatchNum = bestMatchArrayLocation;
             console.log("match array: ", bestMatchArrayLocation);
-            console.log("ranNumber: ", randomNumber);
+            console.log("match array count: ", bestMatchArrayCount);
+            if (index == 0 && !gotTop) {
 
-            var getData = matchService.getLocation(matchesData[randomNumber].login);
+                var maxCount = 0;
+                var maxIndex = 0;
+                topFive = [];
+                for (var p = 0; p < 5; p++) {
+                    maxIndex = 0;
+                    maxCount = 0;
+                    for (var o = 0; o < bestMatchArrayLocation.length; o++) {
+                        if (bestMatchArrayCount[o] > maxCount) {
+                            maxCount = bestMatchArrayCount[o];
+                            maxIndex = bestMatchArrayLocation[o];
+                        }
+                    }
+                    matchScore.push(maxCount);
+                    console.log(maxCount);
+                    console.log(maxIndex);
+                    topFive.push(bestMatchArrayLocation[bestMatchArrayLocation.indexOf(maxIndex)]);
+                    bestMatchArrayCount.splice(bestMatchArrayLocation.indexOf(maxIndex), 1);
+                    bestMatchArrayLocation.splice(bestMatchArrayLocation.indexOf(maxIndex), 1);
+                }
+            }
+            for (var x = 0; x < 5; x++) {
+                console.log("TOP FIVE", matchesData[topFive[x]].login);
+                console.log("Match Score", matchScore[x]);
+            }
+            
+            
+            usernameReceiver = matchesData[topFive[index]].login;
+            console.log("Find mah email",matchesData[topFive[index]]);
+            var getData = matchService.getLocation(matchesData[topFive[index]].login);
             getData.then(function (response) {
                 $scope.currentMatch = response;
 
             })
 
             //Displays the bestMatch's repos. 
-            var getData = matchService.getRepos(matchesData[randomNumber].login);
+            var getData = matchService.getRepos(matchesData[topFive[index]].login);
             getData.then(function (response) {
                 //Stores the language for every repo found
                 $scope.currentMatchRepo = response;
@@ -723,12 +933,16 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
             })
             //Output Results
-            $timeout(function () {
-                $('#loading-modal').modal('toggle');
-                $('html, body').animate({
-                    scrollTop: $("#match-section").offset().top
-                }, 2000);
-            }, 3000);
+            if (index == 0 && !gotTop) {
+                gotTop = true;
+                $timeout(function () {
+                    $scope.repoList.push({ value: "none", display: "No specific repo" });
+                    $('#loading-modal').modal('toggle');
+                    $('html, body').animate({
+                        scrollTop: $("#match-section").offset().top
+                    }, 2000);
+                }, 3000);
+            }
         };
 
         //console.log("Display Function Current Match Detail", currentMatchDetails );
@@ -1480,6 +1694,17 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         });
         return ret;
     }
-
+    // Function to save username and email to database for future Collab Requests
+    $scope.addEmailToDB = function () {
+        $http.get('users/email').then(function (response) {
+            var addEmailJSON = {
+                emailAddress: response.data.email.toLowerCase(),
+                username: $scope.username.toLowerCase()
+            }
+            $http.post('https://prod-05.southcentralus.logic.azure.com:443/workflows/f1ab391d3db24a9a8e2a99a6df7095d4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q3gqMfaUaffxyU4ZQo4OaRSO1Q-8pQ6aOo0FUs-EItg', addEmailJSON).then(function (data) {
+                console.log("Thank you your email has been saved");
+            })
+        })
+    }
 
 }]);

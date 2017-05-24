@@ -150,6 +150,13 @@ input{
 md-autcomplete{
     color:black;
 }
+md-virtual-repeat-container .md-virtual-repeat-scroller{
+    max-height: 150px;
+}
+md-virtual-repeat-container{
+    max-height  :150px !important;
+    z-index:1000;
+}
 .md-virtual-repeat-scroller{
     z-index:10;
 }
@@ -364,7 +371,10 @@ figcaption.ratings a:hover{
 
 
 @media (min-width:320px)  { 
- 
+  svg{
+      height:50%;
+      width:50%;
+  }
 	
 	}/* smartphones, iPhone, portrait 480x320 phones */ 
 
