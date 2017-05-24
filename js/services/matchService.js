@@ -9,7 +9,7 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/users/' + username,
             headers: 
                 {
-                    'Authorization': "token dc1c918f5c68496e8f46c8c6810c97371c20b408"
+                    'Authorization': "token {enter your token here}"
                 }
 
 
@@ -30,7 +30,7 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/users/' + username + '/repos?sort=updated',
             headers:
                 {
-                    'Authorization': "token dc1c918f5c68496e8f46c8c6810c97371c20b408"
+                    'Authorization': "token {enter your token here}"
                 }
 
 
