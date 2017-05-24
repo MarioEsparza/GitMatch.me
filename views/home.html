@@ -144,7 +144,7 @@
                                         <!-- Place this tag where you want the button to render. -->
                                         <a class="btn btn-default btn-block" ng-href="{{userData.html_url}}"><span class="fa fa-github "></span> Follow </a>
                                         <btn class="btn btn-default" ng-if="currentTop >=1" ng-click="previousDisplay(currentTop)"><< Previous User</btn>
-                                        <btn class="btn btn-default" ng-if="currentTop <=3" ng-click="nextDisplay(currentTop)">Next User >></btn>
+                                        <btn class="btn btn-default" ng-if="currentTop <= topFive.length-2" ng-click="nextDisplay(currentTop)">Next User >></btn>
                                     </div>
    
                                 </div>
