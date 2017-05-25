@@ -1,5 +1,6 @@
 app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', '$anchorScroll', 'locationService', 'matchService', 'jsonService', '$q', function ($scope, $timeout, $http, $sce, $location, $anchorScroll, locationService, matchService, jsonService, $q) {
     //Variables
+    $scope.topLanguagesList = [];
     const googleAPIkey = "AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8"
     var OAuthUrl = "https://github.com/login/oauth/authorize?client_id=f9d85111ad2fea5dd1a9&redirect_uri=http://beta-gitnear.azurewebsites.net";
     var weightedLanguages = [];
@@ -26,6 +27,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     $scope.currentTop = 0;
     $scope.showResults = false;
     $scope.getGitAttempts = 0;
+    $scope.lastGetGitAttempts = -1;
     $scope.selected = "";
     $scope.searchRepo = "";
     $scope.selectedRepo = "";
@@ -161,6 +163,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
     //Near Submit
     $scope.findNear = function () {
+        var matchLanguagesArray = [];
+        var matchLanguagesCount = [];
         if ($scope.userForm.$valid) {
             // Remove Spaces from input
             var locationToken = $scope.location
@@ -197,6 +201,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
             // Call Back Executed when Nearby Search returns its promise
             function nearbySearchResults(results, status) {
+                $scope.usersReturned = [];
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     //console.log("Nearby Search SUCCESS: ", results.length);
                     for (var i = 0; i < results.length; i++) {
@@ -227,7 +232,10 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         return languageT;
     }
     $scope.gitAPI = function (locationT) {
-
+        $scope.topLanguagesList = [];
+        matchLanguagesArray = [];
+        matchLanguagesCount = [];
+        
         /*GitHub APi*/
         languangeToken = "";
         var locationToken = locationT;
@@ -240,23 +248,23 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             // Creates appended list of users returned
             if ($scope.getGitAttempts == 0) {
                 $scope.usersReturned = response.items
-                //console.log("First set of users returned", $scope.usersReturned)
+                console.log("First set of users returned", $scope.usersReturned)
             } else {
                 $scope.usersReturned.push.apply($scope.usersReturned, response.items);
                 //console.log("Next set of users returned ", $scope.usersReturned)
             }
-            resultLength = $scope.returnData.total_count;
+            resultLength = $scope.usersReturned.length;
 
             //console.log("GitHub # of Users returned from API Call", $scope.returnData.total_count);
             //console.log("GitHub # of Total Users: ", $scope.usersReturned.length);
             console.table($scope.usersReturned);
-            if (resultLength < 10) {                //If GitHub API results are less than 10, then search nearby location
+            if (resultLength < 10) {
+                ;//If GitHub API results are less than 10, then search nearby location
                 if ($scope.getGitAttempts < nearbyLocationList.length) {
                     //Increment $scope.getGitAttempts each call from nearbyLocationList, attempts the next location given the names aren't too similar
                     //console.log(locationT != nearbyLocationList[$scope.getGitAttempts].replace(/\s+/g, '-').toLowerCase())
 
-                    // Could think about using fuzzyset.js
-                    //http://glench.github.io/fuzzyset.js/
+                    
 
                     // Compares locationT , which was passed to  $scope.gitAPI and already formatted in a token format, and the formatted nearbyLocationList item
                     if (locationT == nearbyLocationList[$scope.getGitAttempts].replace(/\s+/g, '-').toLowerCase()) {
@@ -270,7 +278,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
                 } else if ($scope.getGitAttempts == nearbyLocationList.length) {
                     // Broaden Search Locations and remove previously searched locations
-
+                    
+                    console.log("Last", $scope.lastGetGitAttempts);
+                    console.log("Previous", $scope.getGitAttempts);
                     var myLatlng = new google.maps.LatLng(latitude, longitude);
                     var service = new google.maps.places.PlacesService($('#service-helper').get(0));
                     // Extended Search NearBy Locations
@@ -280,9 +290,35 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                         types: ['locality']
                         // Call nearbySearchResults
                     }, extendedNearbySearchResults);
-                }
+                } 
 
+            } else {
+                getLanguages();
+                
+                        
+                        
+                        
+                       
+                            
+
+                        
+                       
+
+                    
+                    
+
+                   
+                    
+                
+                
+                    
+                
+
+                
             }
+            
+        }, function (fail) {
+            console.log(fail);
         })
     };
 
@@ -313,8 +349,96 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             $scope.gitAPI(nearbyLocationList[$scope.getGitAttempts++]);
         }
         else {
+            if ($scope.topLanguagesList.length != 0) {
+                // Get top Languages for the matching
+                getLanguages();
+            } else {
+                //display modal error
+                console.log("This is where we should tell users that there are no nearby users with this search criteria");
+            }
+            
             //console.log("No new search locations were found, adding another extend may not yield much and whether or not to do so will come down to how much we value the GitHub API calls")
         }
+    }
+    function getLanguages() {
+        // Helper Function to get Top Languages
+        function findLocationRepos(username) {
+            var repoPromises = []
+            var getRepos = matchService;
+            repoPromises.push(getRepos.getRepos(username.login, null).then(function (response) {
+                $scope.currentMatchRepo = response;
+                angular.forEach($scope.currentMatchRepo, function (value, key) {
+
+                    console.log("start the promise");
+
+                    //Checks to see if the language match with the searcher's array of languages (user looking for matches)
+                    if ($scope.currentMatchRepo.length) {
+                        //Then checks to se if it's not already in array
+                        var matchItemIndex = matchLanguagesArray.indexOf(value.language);
+                        if (matchItemIndex < 0) {
+
+                            matchLanguagesArray.push(value.language);
+                            matchLanguagesCount.push(1)
+
+                        } else {
+                            matchLanguagesCount[matchItemIndex]++;
+                        }
+
+
+                    }
+
+
+
+
+                });
+
+
+            }, function (error) {
+                console.log(error);
+            }));
+            return $q.all(repoPromises)
+
+        }
+
+
+
+        var promises = []
+        angular.forEach($scope.usersReturned, function (username, index) {
+
+            promises.push(findLocationRepos(username))
+        });
+        $q.all(promises).then(function () {
+
+
+            for (var i = 0; i < matchLanguagesCount.length; i++) {
+                if (matchLanguagesArray[i] != null) {
+
+                    $scope.topLanguagesList.push({ language: matchLanguagesArray[i], count: matchLanguagesCount[i] });
+                }
+            }
+            var swapped;
+            do {
+                swapped = false;
+                for (var z = 0; z < $scope.topLanguagesList.length - 1; z++) {
+                    if (parseInt($scope.topLanguagesList[z].count) < parseInt($scope.topLanguagesList[z + 1].count)) {
+                        var temp = { language: $scope.topLanguagesList[z].language, count: $scope.topLanguagesList[z].count };
+                        $scope.topLanguagesList[z] = $scope.topLanguagesList[z + 1]
+                        $scope.topLanguagesList[z + 1] = temp
+                        swapped = true
+
+                    }
+                }
+
+            } while (swapped)
+
+
+            // Display Languages in Console
+            for (var i = 0; i < $scope.topLanguagesList.length; i++) {
+                console.log("Top Language", $scope.topLanguagesList[i].language, "Top Count", $scope.topLanguagesList[i].count);
+            }
+        })
+
+
     }
 
 
@@ -901,6 +1025,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 //Stores the language for every repo found
                 $scope.currentMatchRepo = response;
 
+
+                // Can be used for most popular language by location
                 angular.forEach($scope.currentMatchRepo, function (value, key) {
 
                     //Checks to see if the language match with the searcher's array of languages (user looking for matches)
@@ -1724,16 +1850,17 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         return ret;
     }
     // Function to save username and email to database for future Collab Requests
+
+    // No longer needed, with the Authorization Header in the Services
     $scope.addEmailToDB = function () {
         $http.get('users/email').then(function (response) {
             var addEmailJSON = {
                 emailAddress: response.data.email.toLowerCase(),
                 username: $scope.username.toLowerCase()
             }
-            $http.post('https://prod-05.southcentralus.logic.azure.com:443/workflows/f1ab391d3db24a9a8e2a99a6df7095d4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q3gqMfaUaffxyU4ZQo4OaRSO1Q-8pQ6aOo0FUs-EItg', addEmailJSON).then(function (data) {
-                //console.log("Thank you your email has been saved");
+              //console.log("Thank you your email has been saved");
             })
-        })
+       
     }
 
 }]);
