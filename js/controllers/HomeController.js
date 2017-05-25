@@ -1,4 +1,4 @@
-app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', '$anchorScroll', 'locationService', 'matchService', 'jsonService', '$q', function ($scope, $timeout, $http, $sce, $location, $anchorScroll, locationService, matchService, jsonService, $q) {
+app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', '$anchorScroll', 'locationService', 'matchService', 'jsonService', '$q','topLocationService', function ($scope, $timeout, $http, $sce, $location, $anchorScroll, locationService, matchService, jsonService, $q,topLocationService) {
     //Variables
     $scope.topLanguagesList = [];
     const googleAPIkey = "AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8"
@@ -198,7 +198,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                    $scope.Error = _error;
                })// End of Map Geocode Error CallBack
 
-
+            $scope.getTop();
             // Call Back Executed when Nearby Search returns its promise
             function nearbySearchResults(results, status) {
                 $scope.usersReturned = [];
@@ -354,7 +354,6 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 getLanguages();
             } else {
                 //display modal error
-                console.log("This is where we should tell users that there are no nearby users with this search criteria");
             }
             
             //console.log("No new search locations were found, adding another extend may not yield much and whether or not to do so will come down to how much we value the GitHub API calls")
@@ -458,18 +457,21 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
         // Remove Spaces from input
         var locationToken = locationT;
-
+        languageToken = $scope.languagesSelected[0];
+        languageToken = languageToken.replace(/\s+/g, '+').toLowerCase()
         //Passes location to Factory. Determines whether return data is good.
         // Requires different token format
         // replace : with =
         // EG https://crossorigin.me/http://git-awards.com/api/v0/users?city=los+angeles&language=shell
-        var getData = topLocationService.getUsers(locationToken, languangeToken);
+        var getData = topLocationService.getUsers(locationToken, languageToken);
         getData.then(function (response) {
+            console.log(response);
             //console.log(response);
             $scope.returnData = response;
             resultLength = $scope.returnData.total_count;
             //console.log("GitHub # of Users: ", $scope.returnData.total_count);
-            console.table($scope.returnData.items);
+            console.log("These are the Top users");
+            console.table($scope.returnData.users);
 
             if (resultLength < 5) {
                 //If GitHub API results are less than 5, then search nearby location
@@ -481,7 +483,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
     // Function to Call gitTopApi when button pressed 
     $scope.getTop = function () {
-        $scope.gitTopAPI($scope.location.replace(/\s+/g, '-').toLowerCase());
+        $scope.gitTopAPI($scope.location.replace(/\s+/g, '+').toLowerCase());
     }
 
     // Match Algorithm Details
