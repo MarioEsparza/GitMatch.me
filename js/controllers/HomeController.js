@@ -5,6 +5,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     var weightedLanguages = [];
     $scope.topFive = [];
     var matchScore = [];
+    var matchesPercents = [];
+    var GitMatchFactor = 14.843474908426657;
+    $scope.matchPercent
     $scope.matchNearbyLocations = [];
     $scope.matchNearbyAttempts = 0;
     var lanaguageMultiplier = 1;
@@ -28,6 +31,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     $scope.selectedRepo = "";
     $scope.repoList = [];
     $scope.repoValue = {};
+    $scope.emailAddress = null;
+    $scope.topFiveOriginalIndex = [];
     var usernameSender = "";
     var usernameReceiver = "";
     // Send Email Function
@@ -38,7 +43,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                     emailAddress: "brettreinhard@gmail.com",
                     repo: 'https://github.com/' + $scope.selectedRepo.value,
                     usernameSender: usernameSender,
-                    usernameReceiver: usernameReceiver
+                    usernameReceiver: $scope.emailAddress
                 }
             } else {
                 var emailJSON = {
@@ -49,9 +54,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 }
             }
             $http.post('https://prod-18.southcentralus.logic.azure.com:443/workflows/c0ecbbfc0eba409281d256ff34c7a6c0/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bzv-FvzJhnMFl8ocz3TrJi4mOZs4MciyMix4W2D3058', emailJSON).then(function (data) {
-                console.log(data);
+                //console.log(data);
             }, function (error) {
-                console.log(error);
+                //console.log(error);
             })
         }
         //window.location.replace("https://github.com/login/oauth/authorize?client_id=f9d85111ad2fea5dd1a9&redirect_uri=http://beta-gitnear.azurewebsites.net/#!/emailsent");
@@ -92,7 +97,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         });
         //console.log(gitColors);
     }, function error(_error) {
-        console.log("Failed to load GitColors JSON")
+        //console.log("Failed to load GitColors JSON")
     });
 
 
@@ -110,7 +115,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 $('.autocomplete').addClass('hidden');
 
             }
-            console.log($scope.languages.length);
+            //console.log($scope.languages.length);
         } else if ($scope.languages.includes(searchText)) {
             if ($scope.languagesSelected.indexOf(searchText) == -1) {
                 $scope.toggleSelection(searchText);
@@ -139,7 +144,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         else {
             $scope.languagesSelected.push(langName);
         }
-        console.log($scope.languagesSelected);
+        //console.log($scope.languagesSelected);
     };
 
 
@@ -164,8 +169,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             $http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + locationToken + '&key=' + googleAPIkey)
               .then(function (result) {
 
-                  console.log("GeoCode Address: ", result.data.results[0].formatted_address);
-                  console.log("GeoCode LAT: ", result.data.results[0].geometry.location.lat, "\n LNG: ", result.data.results[0].geometry.location.lng);
+                  //console.log("GeoCode Address: ", result.data.results[0].formatted_address);
+                  //console.log("GeoCode LAT: ", result.data.results[0].geometry.location.lat, "\n LNG: ", result.data.results[0].geometry.location.lng);
                   //Lat and Lng variable will be passed to the Google places API to get nearby cities
                   latitude = result.data.results[0].geometry.location.lat;
                   longitude = result.data.results[0].geometry.location.lng;
@@ -193,15 +198,15 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             // Call Back Executed when Nearby Search returns its promise
             function nearbySearchResults(results, status) {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
-                    console.log("Nearby Search SUCCESS: ", results.length);
+                    //console.log("Nearby Search SUCCESS: ", results.length);
                     for (var i = 0; i < results.length; i++) {
                         nearbyLocationList[i] = results[i].name.replace(/\s+/g, '-').toLowerCase();
                     }
-                    console.log("Nearby Places: ", nearbyLocationList);
+                    //console.log("Nearby Places: ", nearbyLocationList);
 
                 }
                 else {
-                    console.log("Nearby Search FAIL");
+                    //console.log("Nearby Search FAIL");
                 }
 
                 // Called within call back
@@ -230,25 +235,25 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         //Passes location to Factory. Determines whether return data is good.
         var getData = locationService.getUsers(locationToken, languangeToken);
         getData.then(function (response) {
-            console.log(response);
+            //console.log(response);
             $scope.returnData = response;
             // Creates appended list of users returned
             if ($scope.getGitAttempts == 0) {
                 $scope.usersReturned = response.items
-                console.log("First set of users returned", $scope.usersReturned)
+                //console.log("First set of users returned", $scope.usersReturned)
             } else {
                 $scope.usersReturned.push.apply($scope.usersReturned, response.items);
-                console.log("Next set of users returned ", $scope.usersReturned)
+                //console.log("Next set of users returned ", $scope.usersReturned)
             }
             resultLength = $scope.returnData.total_count;
 
-            console.log("GitHub # of Users returned from API Call", $scope.returnData.total_count);
-            console.log("GitHub # of Total Users: ", $scope.usersReturned.length);
+            //console.log("GitHub # of Users returned from API Call", $scope.returnData.total_count);
+            //console.log("GitHub # of Total Users: ", $scope.usersReturned.length);
             console.table($scope.usersReturned);
             if (resultLength < 10) {                //If GitHub API results are less than 10, then search nearby location
                 if ($scope.getGitAttempts < nearbyLocationList.length) {
                     //Increment $scope.getGitAttempts each call from nearbyLocationList, attempts the next location given the names aren't too similar
-                    console.log(locationT != nearbyLocationList[$scope.getGitAttempts].replace(/\s+/g, '-').toLowerCase())
+                    //console.log(locationT != nearbyLocationList[$scope.getGitAttempts].replace(/\s+/g, '-').toLowerCase())
 
                     // Could think about using fuzzyset.js
                     //http://glench.github.io/fuzzyset.js/
@@ -256,10 +261,10 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                     // Compares locationT , which was passed to  $scope.gitAPI and already formatted in a token format, and the formatted nearbyLocationList item
                     if (locationT == nearbyLocationList[$scope.getGitAttempts].replace(/\s+/g, '-').toLowerCase()) {
                         $scope.getGitAttempts++;
-                        console.log("Skipped, too similar of location");
+                        //console.log("Skipped, too similar of location");
                     }
                     //Starts search for next location in list
-                    console.log("Starting next location")
+                    //console.log("Starting next location")
                     $scope.gitAPI(nearbyLocationList[$scope.getGitAttempts++]);
 
 
@@ -284,23 +289,23 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     // Extended Call Back executed when Extended Nearby Search returns its promise
     function extendedNearbySearchResults(results, status) {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
-            console.log("EXTENDED Nearby Search SUCCESS: ", results.length);
-            console.log(results);
+            //console.log("EXTENDED Nearby Search SUCCESS: ", results.length);
+            //console.log(results);
             var currentResult = results[0].name;
             for (var i = 0; i < results.length; i++) {
                 currentResult = results[i].name.replace(/\s+/g, '-').toLowerCase();
                 if (nearbyLocationList.indexOf(currentResult) == -1) {
                     nearbyLocationList[nearbyLocationList.length] = currentResult;
                 } else {
-                    console.log("Location already in list", currentResult);
+                    //console.log("Location already in list", currentResult);
                 }
 
             }
-            console.log("Nearby Places: ", nearbyLocationList);
+            //console.log("Nearby Places: ", nearbyLocationList);
 
         }
         else {
-            console.log("Nearby Search FAIL");
+            //console.log("Nearby Search FAIL");
         }
 
         // Called within call back
@@ -308,7 +313,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             $scope.gitAPI(nearbyLocationList[$scope.getGitAttempts++]);
         }
         else {
-            console.log("No new search locations were found, adding another extend may not yield much and whether or not to do so will come down to how much we value the GitHub API calls")
+            //console.log("No new search locations were found, adding another extend may not yield much and whether or not to do so will come down to how much we value the GitHub API calls")
         }
     }
 
@@ -316,9 +321,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     // Proof of Concept for Git-Awards CORS-ByPass for Top-Location
     //console.log("Dont mind this, the site still works, but I need to test on mobile")
     //$http.get("https://crossorigin.me/http://git-awards.com/api/v0/users?city=los+angeles&language=shell").then(function (data) {
-    //    console.log(data);
+    //    //console.log(data);
     //    Use this one if you wanna see a familiar face :P
-    //    console.log(data.data[13]);
+    //    //console.log(data.data[13]);
     //}, function (error) {
 
     //})
@@ -336,10 +341,10 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         // EG https://crossorigin.me/http://git-awards.com/api/v0/users?city=los+angeles&language=shell
         var getData = topLocationService.getUsers(locationToken, languangeToken);
         getData.then(function (response) {
-            console.log(response);
+            //console.log(response);
             $scope.returnData = response;
             resultLength = $scope.returnData.total_count;
-            console.log("GitHub # of Users: ", $scope.returnData.total_count);
+            //console.log("GitHub # of Users: ", $scope.returnData.total_count);
             console.table($scope.returnData.items);
 
             if (resultLength < 5) {
@@ -362,6 +367,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
     //Match Submit
     $scope.findMatch = function (location) {
+        bestMatchArrayLocation = [];
+        bestMatchArrayCount = [];
+        weightedLanguages = [];
         $scope.currentTop = 0;
         gotTop = false;
         var matchLocationToken = null;
@@ -384,7 +392,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             getData.then(function (response) {
                 $scope.returnMatchData = userData = response;
 
-                console.log($scope.returnMatchData.login, "'s Location: ", $scope.returnMatchData.location);
+                //console.log($scope.returnMatchData.login, "'s Location: ", $scope.returnMatchData.location);
                 if (location != "formSubmit") {
                     $scope.returnMatchData.location = location;
                 }
@@ -441,13 +449,13 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                         getData.then(function (response) {
                             $scope.showResults = true;  //On Success, show result section
 
-                            console.log(response);
+                            //console.log(response);
                             $scope.returnData = response;
                             // Creates appended list of users returned
 
                             resultLength = $scope.returnData.total_count;
 
-                            console.log("GitHub # of Users returned from API Call", $scope.returnData.total_count);
+                            //console.log("GitHub # of Users returned from API Call", $scope.returnData.total_count);
 
                             console.table($scope.returnData.items);
                             matchesData = $scope.returnData.items;
@@ -487,7 +495,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
 
                     }, function error(error) {
-                        console.log("ERROR: NO REPOS FOUND")
+                        //console.log("ERROR: NO REPOS FOUND")
 
                     })
 
@@ -498,7 +506,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 }
                 //console.table($scope.returnData.items);
             }, function error(error) {
-                console.log("ERROR: USERNOT FOUND")
+                //console.log("ERROR: USERNOT FOUND")
                 $("#match-input").addClass('alert-danger');
                 $scope.userName = "User Not Found. Try Again";
             })
@@ -517,15 +525,15 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
     function matchNearbyResults(results, status) {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
-            console.log("Nearby Search SUCCESS: ", results.length);
+            //console.log("Nearby Search SUCCESS: ", results.length);
             for (var i = 0; i < results.length; i++) {
                 $scope.matchNearbyLocations[i] = results[i].name.replace(/\s+/g, '-').toLowerCase();
             }
-            console.log("Nearby Places: ", $scope.matchNearbyLocations);
+            //console.log("Nearby Places: ", $scope.matchNearbyLocations);
 
         }
         else {
-            console.log("Nearby Search FAIL");
+            //console.log("Nearby Search FAIL");
         }
 
         // Called within call back
@@ -543,8 +551,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         //Google Maps Geocode
         $http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + locationToken + '&key=' + googleAPIkey)
           .then(function (result) {
-              console.log("GeoCode Address: ", result.data.results[0].formatted_address);
-              console.log("GeoCode LAT: ", result.data.results[0].geometry.location.lat, "\n LNG: ", result.data.results[0].geometry.location.lng);
+              //console.log("GeoCode Address: ", result.data.results[0].formatted_address);
+              //console.log("GeoCode LAT: ", result.data.results[0].geometry.location.lat, "\n LNG: ", result.data.results[0].geometry.location.lng);
               //Lat and Lng variable will be passed to the Google places API to get nearby cities
               latitude = result.data.results[0].geometry.location.lat;
               longitude = result.data.results[0].geometry.location.lng;
@@ -572,15 +580,15 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         // Call Back Executed when Nearby Search returns its promise
         function nearbySearchResults(results, status) {
             if (status === google.maps.places.PlacesServiceStatus.OK) {
-                console.log("Nearby Search SUCCESS: ", results.length);
+                //console.log("Nearby Search SUCCESS: ", results.length);
                 for (var i = 0; i < results.length; i++) {
                     nearbyLocationList[i] = results[i].name.replace(/\s+/g, '-').toLowerCase();
                 }
-                console.log("Nearby Places: ", nearbyLocationList);
+                //console.log("Nearby Places: ", nearbyLocationList);
 
             }
             else {
-                console.log("Nearby Search FAIL");
+                //console.log("Nearby Search FAIL");
             }
         }
     };
@@ -590,7 +598,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         var ret = [];
         var getData = matchService.getLocation(usernameToken);
         getData.then(function (response) {
-            console.log("Git Info: ", response);
+            //console.log("Git Info: ", response);
             return response;
         })
 
@@ -604,28 +612,28 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             $scope.returnMatchData = response;
 
         }, function error(error) {
-            console.log("ERROR: NO REPOS FOUND")
+            //console.log("ERROR: NO REPOS FOUND")
 
         })
     }
 
     //Unused Function WIP
     $scope.collectRepoLanguages = function (data) {
-        console.log("WHEN IS THIS RUN?");
+        //console.log("WHEN IS THIS RUN?");
         angular.forEach(data, function (value, key) {
             //Checks to see if language is not null
             if (value.language) {
                 //Then checks to se if it's not already in array
                 var matchItemIndex = matchLanguagesArray.indexOf(value.language);
                 if (matchItemIndex < 0) {
-                    console.log("ADDED: ", value.language);
+                    //console.log("ADDED: ", value.language);
                     matchLanguagesArray.push(value.language);
                     matchLanguagesCount.push(1)
 
                 } else {
-                    console.log("Count: ", matchLanguagesCount[matchItemIndex]);
+                    //console.log("Count: ", matchLanguagesCount[matchItemIndex]);
                     matchLanguagesCount[matchItemIndex]++;
-                    console.log("Increased: ", matchLanguagesCount[matchItemIndex]);
+                    //console.log("Increased: ", matchLanguagesCount[matchItemIndex]);
                 }
             }
         });
@@ -633,16 +641,16 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             weightedLanguages[matchLanguagesCount[i]] = matchLanguagesArray[i];
         }
 
-        console.log("matchLanguagesArray", matchLanguagesArray);
-        console.log("matchLanguagesCount", matchLanguagesCount);
+        //console.log("matchLanguagesArray", matchLanguagesArray);
+        //console.log("matchLanguagesCount", matchLanguagesCount);
     }
 
     //Background Image Function
     $scope.googleBG = function (location) {
         //Determines the zoom for the background image of the match section
         var mapZoom = $scope.getLocationType(location);
-        console.log("Google Static Map Function. Token: ", location);
-        console.log("GOOGLE API TEST: Location Type:", mapZoom);
+        //console.log("Google Static Map Function. Token: ", location);
+        //console.log("GOOGLE API TEST: Location Type:", mapZoom);
         switch (mapZoom) {
             case 'country':
                 mapZoom = 7;
@@ -673,13 +681,13 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         //Google Maps Geocode
         $http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + location + '&key=' + googleAPIkey)
           .then(function (result) {
-              console.log("Match Location Type: ", result.data.results[0].types[0]);
+              //console.log("Match Location Type: ", result.data.results[0].types[0]);
               return result.data.results[0].types[0];
 
           }, // End of Map Geocode Successful CallBack
            function error(_error) {
                $scope.Error = _error;
-               console.log("Get Location Type Fail")
+               //console.log("Get Location Type Fail")
            })// End of Map Geocode Error CallBack
 
     };
@@ -689,6 +697,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         var matchLanguagesCount = [];
         var bestMatchArrayLocation = [];
         var bestMatchArrayCount = [];
+        matchScore = [];
+        matchesPercents = [];
 
         //Hard coded random number currently determines the match i.e matchesData[randomNumber]
         var randomNumber = getRandomInt(0, matchesData.length - 1);
@@ -696,9 +706,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        console.log("Display Function: Languages: ", language.length, "Count: ", languageCount.length);
+        //console.log("Display Function: Languages: ", language.length, "Count: ", languageCount.length);
         //$scope.usersMatchesData = matchesData
-        console.log("Display Function User Repo Data", userRepoData);
+        //console.log("Display Function User Repo Data", userRepoData);
 
         //Temp Fix: Function GitUserInfo returning an undefined
         // This function seaches through the users matchesData obj (Only 30 users at the moment) and will determine the best match based on number of languages matches
@@ -721,11 +731,11 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 var foreachRepoCallback;
                 usernameSender = $scope.userName;
                 for (var j = 0; j < matchesData.length; j++) {
-                    console.log(matchesData[j]);
+                    //console.log(matchesData[j]);
                     //console.log("J: ", j);
-                    console.log("matchesData[j].login", matchesData[j].login);
-                    console.log("$scope.returnMatchData.login", $scope.userName);
-                    if (matchesData[j].login.toLowerCase() != $scope.userName.toLowerCase()) {
+                    //console.log("matchesData[j].login", matchesData[j].login);
+                    //console.log("$scope.returnMatchData.login", $scope.userName);
+                   if (matchesData[j].login.toLowerCase() != $scope.userName.toLowerCase()) {
 
 
                         deferred = $q.defer();
@@ -737,7 +747,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                             promises.push(forEachRepo($scope.currentMatchRepo, response.newIndex));
                             //console.log("match array2:  ", bestMatchArrayLocation);
                         }, function error(error) {
-                            console.log("ERROR: NO REPOS FOUND")
+                            //console.log("ERROR: NO REPOS FOUND")
 
                         }));
                     }
@@ -745,27 +755,28 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                     //console.log("Best Match Number",bestMatchNumber);
                     //if (matchingLanguagesCounter > bestMatchNumber) {
                     //    bestMatchNumber = matchingLanguagesCounter;
-                    //    console.log("New Best Match: ", j, bestMatchNumber);
+                    //    //console.log("New Best Match: ", j, bestMatchNumber);
                     //    if (bestMatchArrayLocation.length == 0) {
                     //        bestMatchArrayLocation.push(j);
                     //    } else {
                     //        bestMatchArrayLocation.unshift(j);
                     //    }
-                    //    console.log("Best Match Array: ", bestMatchArrayLocation);
+                    //    //console.log("Best Match Array: ", bestMatchArrayLocation);
                     //}
 
                 }
-                console.log("Fetching Repo Done");
+                //console.log("Fetching Repo Done");
                 return $q.all(promises);
             }
 
             function forEachRepo(currentMatchRepo, index) {
                 var newPromises = [];
                 var newAngularDeferred = $q.defer();
-
+                matchLanguagesArray = [];
+                matchingLanguagesCounter = 1;
                 newPromises.push(newAngularDeferred.promise);
-                console.log("Counter In: ", matchingLanguagesCounter);
-                console.log(weightedLanguages);
+                //console.log("Counter In: ", matchingLanguagesCounter);
+                //console.log(weightedLanguages);
                 angular.forEach(currentMatchRepo, function (value, key) {
                     //Checks to see if the language match with the searcher's array of languages (user looking for matches)
                     if (currentMatchRepo.length) {
@@ -778,32 +789,43 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                                 //Then checks to se if it's not already in array
                                 var matchItemIndex = matchLanguagesArray.indexOf(value.language);
                                 if (matchItemIndex < 0) {
-                                    matchingLanguagesCounter = matchingLanguagesCounter + lanaguageMultiplier;
-                                    console.log("Counter++", value.language);
+                                    if ($scope.userData.public_repos >= 30) {
+
+                                        matchingLanguagesCounter = matchingLanguagesCounter + 30;
+                                    } else {
+
+                                        matchingLanguagesCounter = matchingLanguagesCounter + $scope.userData.public_repos;
+                                    }
+                                    //console.log("Counter++", value.language);
                                     //bestMatch_Language.push({ lang: value.language, count: matchingLanguagesCounter });
-                                    //matchLanguagesArray.push(value.language);
+                                    matchLanguagesArray.push(value.language);
                                     // matchLanguagesCount.push(1)
 
+
+                                } else {
+                                    matchingLanguagesCounter = matchingLanguagesCounter + (1* lanaguageMultiplier);
                                 }
                             }
                         }
                     }
-                    newAngularDeferred.resolve();
-
+                    
                 });
-                console.log("Counter Out: ", matchingLanguagesCounter);
                 bestMatchArrayLocation.push(index);
-                bestMatchArrayCount.push(matchingLanguagesCounter);
+                bestMatchArrayCount.push(Math.log(matchingLanguagesCounter)*GitMatchFactor);
+                console.log("Index: ", index, "matchingLanguagesCounter", matchingLanguagesCounter, "matchingLanguages arry", matchLanguagesArray);
+                newAngularDeferred.resolve();
+                //console.log("Counter Out: ", matchingLanguagesCounter);
+                
 
-                console.log("Best Match Array: ", bestMatchArrayLocation);
+                //console.log("Best Match Array: ", bestMatchArrayLocation);
                 //if (matchingLanguagesCounter > bestMatchNumber) {
                 //    bestMatchNumber = matchingLanguagesCounter;
-                //    console.log("New Best Match: ", index, bestMatchNumber);
+                //    //console.log("New Best Match: ", index, bestMatchNumber);
 
                 //    bestMatchArrayLocation.push(index);
                 //    bestMatchArrayCount.push(matchingLanguagesCounter);
 
-                //    console.log("Best Match Array: ", bestMatchArrayLocation);
+                //    //console.log("Best Match Array: ", bestMatchArrayLocation);
                 //}
                 return $q.all(newPromises)
             }
@@ -813,23 +835,23 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
             ++index;
             ++$scope.currentTop;
-            console.log(index);
+            //console.log(index);
             displayMatches(index);
         }
         $scope.previousDisplay = function (index) {
 
             --index;
             --$scope.currentTop;
-            console.log(index);
+            //console.log(index);
             displayMatches(index);
         }
         function displayMatches(index) {
             matchLanguagesArray = [];
             matchLanguagesCount = [];
-            console.log(bestMatch_Language);
+            //console.log(bestMatch_Language);
             bestMatchNum = bestMatchArrayLocation;
-            console.log("match array: ", bestMatchArrayLocation);
-            console.log("match array count: ", bestMatchArrayCount);
+            //console.log("match array: ", bestMatchArrayLocation);
+            //console.log("match array count: ", bestMatchArrayCount);
             if (index == 0 && !gotTop) {
 
                 var maxCount = 0;
@@ -845,11 +867,13 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                         }
                     }
                     if (maxIndex == 0 && maxCount == 0) {
-                        console.log("No more Matches found");
+                        //console.log("No more Matches found");
                     } else {
                         matchScore.push(maxCount);
                         console.log(maxCount);
                         console.log(maxIndex);
+                        matchesPercents.push(maxCount);
+                        $scope.topFiveOriginalIndex.push(maxIndex);
                         $scope.topFive.push(bestMatchArrayLocation[bestMatchArrayLocation.indexOf(maxIndex)]);
                         bestMatchArrayCount.splice(bestMatchArrayLocation.indexOf(maxIndex), 1);
                         bestMatchArrayLocation.splice(bestMatchArrayLocation.indexOf(maxIndex), 1);
@@ -860,18 +884,20 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 console.log("TOP FIVE", matchesData[$scope.topFive[x]].login);
                 console.log("Match Score", matchScore[x]);
             }
-
+            $scope.matchPercent = parseInt(matchesPercents[index]);
 
             usernameReceiver = matchesData[$scope.topFive[index]].login;
             var getData = matchService.getLocation(matchesData[$scope.topFive[index]].login);
             getData.then(function (response) {
                 $scope.currentMatch = response;
-
+                $scope.emailAddress = response.email;
+                console.log("Found Matches Email:", $scope.emailAddress);
             })
 
             //Displays the bestMatch's repos. 
             var getData = matchService.getRepos(matchesData[$scope.topFive[index]].login);
             getData.then(function (response) {
+                //console.log("JASKJDHKLAJSHDLKJASHDAS",response);
                 //Stores the language for every repo found
                 $scope.currentMatchRepo = response;
 
@@ -904,7 +930,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 var totalItems = matchLanguagesArray.length;
                 var pieDatasets = [];
                 var pieBackgroundColors = [];
-
+                //console.log(matchLanguagesArray);
                 for (var i = 0; i < matchLanguagesArray.length; i++) {
                     pieBackgroundColors.push(getColor(matchLanguagesArray[i]))
                     pieDatasets.push(totalItems - (totalItems - matchLanguagesCount[i]))
@@ -932,7 +958,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 });
 
             }, function error(error) {
-                console.log("ERROR: NO REPOS FOUND")
+                //console.log("ERROR: NO REPOS FOUND")
 
             })
             //Output Results
@@ -1705,7 +1731,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 username: $scope.username.toLowerCase()
             }
             $http.post('https://prod-05.southcentralus.logic.azure.com:443/workflows/f1ab391d3db24a9a8e2a99a6df7095d4/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q3gqMfaUaffxyU4ZQo4OaRSO1Q-8pQ6aOo0FUs-EItg', addEmailJSON).then(function (data) {
-                console.log("Thank you your email has been saved");
+                //console.log("Thank you your email has been saved");
             })
         })
     }

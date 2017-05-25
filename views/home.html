@@ -94,13 +94,14 @@
 
                 </div>
                 <!-- Matches Display-->
-                <div class="col-md-6">
+                <div class="col-md-6" >
                     <div class="row">
                         <div class="col-md-12 " >
                             <div class="well profile-matches">
                                 <div class="col-xs-12 col-sm-12 col-md-12 text-center alert-success">
-                                    <h2>Match <i class="fa fa-check" aria-hidden="true"></i></h2>     
-                                    <md-autocomplete class="repo-repeater" md-dropdown-position="bottom" md-selected-item-change="addRepo(selectedRepo)" md-selected-item="selectedRepo" md-search-text="searchRepo" md-items="item in getRepos(searchRepo)" md-item-text="item.display" md-min-length="0" placeholder="Select Repo to Collab On">
+                                    <h2>{{matchPercent}}% Match <i class="fa fa-check" aria-hidden="true"></i></h2>     
+                                    <div ng-if="emailAddress != null" class="only-if-email">
+                                    <md-autocomplete  class="repo-repeater" md-dropdown-position="bottom" md-selected-item-change="addRepo(selectedRepo)" md-selected-item="selectedRepo" md-search-text="searchRepo" md-items="item in getRepos(searchRepo)" md-item-text="item.display" md-min-length="0" placeholder="Select Repo to Collab On">
                                         <md-item-template class="auto-complete">
                                             <span md-highlight-text="searchRepo">{{item.display}}</span>
 
@@ -108,6 +109,7 @@
                                         <md-not-found>No matches found.</md-not-found>
                                     </md-autocomplete> 
                                         <a class="btn btn-success btn-block" ng-click="sendEmail()"><span class="fa handshake-o"></span><p><strong>Send Collab Request</strong></p></a>
+                                        </div>
 
                                 </div>
                                 <div class="col-sm-12">
