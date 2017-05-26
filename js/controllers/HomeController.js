@@ -1037,7 +1037,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 }, function (error) {
                     // ERROR GOES HERE
                 }));
-                for (var b = 0; b < 5; b++) {
+                for (var b = 0; b < $scope.topFive.length; b++) {
                     var getMatchDataMatchee = topLocationService.getUserRepos(matchesData[$scope.topFive[b]].login);
                     load.push(getMatchDataMatchee.then(function (data) {
                         var starCounter = 0;
