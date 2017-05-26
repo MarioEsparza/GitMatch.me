@@ -1,0 +1,4 @@
+*.log
+App_Data/PublishProfiles/beta-gitnear - FTP.pubxml
+website.publishproj
+*.pubxml
