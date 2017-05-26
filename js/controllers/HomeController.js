@@ -37,6 +37,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     $scope.topFiveOriginalIndex = [];
     var usernameSender = "";
     var usernameReceiver = "";
+    $scope.users = [];
+    $scope.topUserPerLanguage = [];
     // Send Email Function
     $scope.sendEmail = function () {
         if ($scope.userName.toLowerCase() == "bareinhard") {
@@ -490,9 +492,10 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     // ------ Search Based on Location and Language
     // ------ Return First User
     // ------ Show Details of User, list projects
-
+    var promises = [];
     //Match Submit
     $scope.findMatch = function (location) {
+        $scope.Matchee = [];
         bestMatchArrayLocation = [];
         bestMatchArrayCount = [];
         weightedLanguages = [];
@@ -506,12 +509,12 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         var userData = null;
         var userRepoData = null;
         var matchesData = [];
-
+        promises = [];
 
         if ($scope.userForm.$valid) {
             // Remove Spaces from input
             var usernameToken = $scope.userName
-
+            
             //Match first finds the user LOCATION
             //Calls gitAPI and passes usernameToken formatted for the call
             var getData = matchService.getLocation(usernameToken);
@@ -613,7 +616,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
                                 $scope.displayResults(matchLanguagesArray, matchLanguagesCount, userData, userRepoData, matchesData);
                             }
-
+                            
 
 
                         })
@@ -851,7 +854,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
 
             function fetchEachRepo() {
-                var promises = [];
+                
                 var deffered;
                 var angularDeferred;
                 var foreachRepoCallback;
@@ -972,12 +975,29 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             displayMatches(index);
         }
         function displayMatches(index) {
+            /* The following portion is to get the top user per language in a given location */
+
+            // Get UserNames and Star Counts for Top Language and Location
+            var getData = topLocationService.getUsers(googleLocationToken, matchLanguagesArray[0]);
+            getData.then(function (response) {
+                // this gives me the initial list of users
+                // the response has the objects, which include the stars_count member
+                $scope.returnData = response.users;
+                var starsArray = [];
+                for (var i = 0; i < $scope.returnData.length; i++) {
+                    starsArray.push({ username: $scope.returnData[i].login, stars: $scope.returnData[i].stars_count });
+                }
+                console.log(starsArray);
+            })
+            
+
             matchLanguagesArray = [];
             matchLanguagesCount = [];
             //console.log(bestMatch_Language);
             bestMatchNum = bestMatchArrayLocation;
             //console.log("match array: ", bestMatchArrayLocation);
             //console.log("match array count: ", bestMatchArrayCount);
+            var load = [];
             if (index == 0 && !gotTop) {
 
                 var maxCount = 0;
@@ -1005,7 +1025,33 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                         bestMatchArrayLocation.splice(bestMatchArrayLocation.indexOf(maxIndex), 1);
                     }
                 }
+                // GET TOP STARS FOR MATCHES
+                var getMatchDataSearcher = topLocationService.getUserRepos($scope.userName);
+                load.push(getMatchDataSearcher.then(function (data) {
+                    var starCounter = 0;
+                    for (var i = 0; i < data.user.rankings.length;i++){
+                        starCounter = starCounter + data.user.rankings[i].stars_count;
+                    }
+                    console.log("Username: ", data.user.login, " Star Count: ", starCounter);
+                    $scope.Searcher = { username: data.user.login, stars: starCounter };
+                }, function (error) {
+                    // ERROR GOES HERE
+                }));
+                for (var b = 0; b < 5; b++) {
+                    var getMatchDataMatchee = topLocationService.getUserRepos(matchesData[$scope.topFive[b]].login);
+                    load.push(getMatchDataMatchee.then(function (data) {
+                        var starCounter = 0;
+                        for (var i = 0; i < data.user.rankings.length; i++) {
+                            starCounter = starCounter + data.user.rankings[i].stars_count;
+                        }
+                        console.log("Username: ", data.user.login, " Star Count: ", starCounter);
+                        $scope.Matchee.push({ username: data.user.login, stars: starCounter });
+                    }, function (error) {
+                    }))
+                }
             }
+            
+
             for (var x = 0; x < $scope.topFive.length; x++) {
                 console.log("TOP FIVE", matchesData[$scope.topFive[x]].login);
                 console.log("Match Score", matchScore[x]);
@@ -1092,13 +1138,16 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             //Output Results
             if (index == 0 && !gotTop) {
                 gotTop = true;
-                $timeout(function () {
-                    $scope.repoList.push({ value: "none", display: "No specific repo" });
-                    $('#loading-modal').modal('toggle');
-                    $('html, body').animate({
-                        scrollTop: $("#match-section").offset().top
-                    }, 2000);
-                }, 3000);
+                $q.all(load).then(function () {
+                    $timeout(function () {
+                        $scope.repoList.push({ value: "none", display: "No specific repo" });
+                        $('#loading-modal').modal('toggle');
+                        $('html, body').animate({
+                            scrollTop: $("#match-section").offset().top
+                        }, 2000);
+                    }, 3000);
+                })
+                
             }
         };
 
