@@ -75,17 +75,23 @@
                                     <canvas id="myChart2"></canvas>
                                 </div>
                                 <div class="col-xs-12 divider text-center">
-                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                    <div class="col-xs-12 col-sm-4 emphasis">
                                         <p>Repos</p>
                                         <h2><strong> {{userData.public_repos}} </strong></h2>
                                  
                                         <button class="btn btn-success btn-block" ng-href="{{userRepos}}"><span class="fa fa-code"></span> View Repos </button>
                                     </div>
-                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                    <div class="col-xs-12 col-sm-4 emphasis">
                                         <p><small>Followers</small></p>
                                         <h2><strong> {{userData.followers}} </strong></h2>
                                         <!-- Place this tag where you want the button to render. -->
                                         <a class="btn btn-default btn-block" ng-href="{{userData.html_url}}"><span class="fa fa-github "></span> Follow </a>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 emphasis">
+                                        <p>Stars</p>
+                                        <h2><strong> {{Searcher.stars}} </strong></h2>
+
+                                        <button class="btn btn-info btn-block" ng-href="{{userRepos}}"><span class="fa fa-code"></span> View Repos </button>
                                     </div>
                                 </div>
                             </div>
@@ -134,19 +140,25 @@
                                     <canvas id="myChartMatch"></canvas>
                                 </div>
                                 <div class="col-xs-12 divider text-center">
-                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                    <div class="col-xs-12 col-sm-4 emphasis">
                                         <p>Repos</p>
                                         <h2><strong> {{currentMatch.public_repos}} </strong></h2>
 
                                         <button class="btn btn-info btn-block" ng-href="{{userRepos}}"><span class="fa fa-code"></span> View Repos </button>
                                     </div>
-                                    <div class="col-xs-12 col-sm-6 emphasis">
+                                    <div class="col-xs-12 col-sm-4 emphasis">
                                         <p><small>Followers</small></p>
                                         <h2><strong> {{currentMatch.followers}} </strong></h2>
                                         <!-- Place this tag where you want the button to render. -->
                                         <a class="btn btn-default btn-block" ng-href="{{userData.html_url}}"><span class="fa fa-github "></span> Follow </a>
                                         <btn class="btn btn-default" ng-if="currentTop >=1" ng-click="previousDisplay(currentTop)"><< Previous User</btn>
                                         <btn class="btn btn-default" ng-if="currentTop <= topFive.length-2" ng-click="nextDisplay(currentTop)">Next User >></btn>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-4 emphasis">
+                                        <p>Stars</p>
+                                        <h2><strong> {{Matchee[currentTop].stars}} </strong></h2>
+
+                                        <button class="btn btn-info btn-block" ng-href="{{userRepos}}"><span class="fa fa-code"></span> View Repos </button>
                                     </div>
    
                                 </div>
