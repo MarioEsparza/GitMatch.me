@@ -23,6 +23,11 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     var myChartMatch = null;
     var bestMatch_Language = [];
     var gotTop = false;
+    // I've added these to work with
+    // getting the top user per language
+    $scope.users = [];
+    $scope.topUserPerLanguage = [];
+    //
     $scope.currentTop = 0;
     $scope.showResults = false;
     $scope.getGitAttempts = 0;
@@ -355,7 +360,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         })
     };
 
-    // Function to Call gitTopApi when button pressed 
+    // Function to Call gitTopApi when button pressed
     $scope.getTop = function () {
         $scope.gitTopAPI($scope.location.replace(/\s+/g, '-').toLowerCase());
     }
@@ -488,8 +493,92 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                                 $scope.displayResults(matchLanguagesArray, matchLanguagesCount, userData, userRepoData, matchesData);
                             }
 
+                            /* The following portion is to get the top user per language in a given location */
 
+                            // if I do multiple languages, it's problematic,
+                            // however, if I do an individual language, it's fine
+                            var getData = topLocationService.getUsers(googleLocationToken, matchLanguagesArray[0]);
+                            getData.then(function(response) {
+                                // this gives me the initial list of users
+                                // the response has the objects, which include the stars_count member
+                                $scope.returnData = response;
 
+                                // after getting the initial list of users,
+                                // make an API call on each individual user
+                                for (var userIndex = 0; userIndex < $scope.returnData.users.length; userIndex++) {
+                                    var repos = topLocationService.getUserRepos($scope.returnData.users[userIndex].login);
+                                    repos.then(function(response) {
+                                        // the $scope.users array contains all of the users
+                                        $scope.users.push(response);
+                                        if ($scope.users.length == $scope.returnData.users.length) {
+                                            // for all of the users in $scope.users,
+                                            for (var userIndex = 0; userIndex < $scope.users.length; userIndex++) {
+                                                // this will contain how many stars per language a given user has for all languages that he's worked with
+                                                var starsPerLanguage = [];
+                                                // go through each language that they've worked in...
+                                                for (var languageIndex = 0; languageIndex < $scope.users[userIndex].user.rankings.length; languageIndex++) {
+                                                    // console.log($scope.users[userIndex].user.rankings[languageIndex].language);
+                                                    // console.log("stars_count = ");
+                                                    // console.log($scope.users[userIndex].user.rankings[languageIndex].stars_count);
+                                                    // console.log("login = ");
+                                                    // console.log($scope.users[userIndex].user.login);
+                                                    starsPerLanguage.push({
+                                                        language: $scope.users[userIndex].user.rankings[languageIndex].language,
+                                                        starCount: $scope.users[userIndex].user.rankings[languageIndex].stars_count,
+                                                        username: $scope.users[userIndex].user.login
+                                                    });
+                                                    // this chunk of code checks if the language already exists in the topUserPerLanguage array
+                                                    // I couldn't use indexOf because I was using objects
+                                                    var searchIndex = -1;
+                                                    for (var checkIndex = 0, len = $scope.topUserPerLanguage.length; checkIndex < len; checkIndex++) {
+                                                        if ($scope.topUserPerLanguage[checkIndex].language === $scope.users[userIndex].user.rankings[languageIndex].language) {
+                                                            searchIndex = checkIndex;
+                                                            break;
+                                                        }
+                                                    }
+                                                    // if the language they've worked in isn't already in the array (searchIndex == -1), add it
+                                                    if (searchIndex == -1) {
+                                                        $scope.topUserPerLanguage.push({
+                                                            language: $scope.users[userIndex].user.rankings[languageIndex].language,
+                                                            starCount: $scope.users[userIndex].user.rankings[languageIndex].stars_count,
+                                                            topUser: $scope.users[userIndex].user.login
+                                                        });
+                                                    }
+                                                }
+                                                for (var userLanguageIndex = 0; userLanguageIndex < starsPerLanguage.length; userLanguageIndex++) {
+                                                    // this accesses the overall top user per language array
+
+                                                    for (var overallTopUserIndex = 0; overallTopUserIndex < $scope.topUserPerLanguage.length; overallTopUserIndex++) {
+                                                        console.log("user's star count for this language = ");
+                                                        console.log(starsPerLanguage[userLanguageIndex].starCount);
+                                                        console.log("overall top star count for this language = ");
+                                                        console.log($scope.topUserPerLanguage[overallTopUserIndex].starCount);
+                                                        // if the language that they've worked in matches one of the languages in the overall top user array
+                                                        // AND the # of stars beats the current best, make them the top user
+                                                        if (starsPerLanguage[userLanguageIndex].language == $scope.topUserPerLanguage[overallTopUserIndex].language &&
+                                                            starsPerLanguage[userLanguageIndex].starCount > $scope.topUserPerLanguage[overallTopUserIndex].starCount) {
+                                                            $scope.topUserPerLanguage[overallTopUserIndex].starCount = starsPerLanguage[userLanguageIndex].starCount;
+                                                            $scope.topUserPerLanguage[overallTopUserIndex].topUser = starsPerLanguage[userLanguageIndex].username;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            // use to sort
+                                            $scope.topUserPerLanguage.sort(function(a, b) {
+                                                var languageA = a.language.toLowerCase();
+                                                var languageB = b.language.toLowerCase();
+                                                if (languageA < languageB) {
+                                                    return -1;
+                                                }
+                                                if (languageA > languageB) {
+                                                    return 1;
+                                                }
+                                                return 0;
+                                            });
+                                            console.log($scope.topUserPerLanguage);
+                                        }
+                                    });
+                                  }
                         })
 
 
@@ -808,14 +897,14 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                             }
                         }
                     }
-                    
+
                 });
                 bestMatchArrayLocation.push(index);
                 bestMatchArrayCount.push(Math.log(matchingLanguagesCounter)*GitMatchFactor);
                 console.log("Index: ", index, "matchingLanguagesCounter", matchingLanguagesCounter, "matchingLanguages arry", matchLanguagesArray);
                 newAngularDeferred.resolve();
                 //console.log("Counter Out: ", matchingLanguagesCounter);
-                
+
 
                 //console.log("Best Match Array: ", bestMatchArrayLocation);
                 //if (matchingLanguagesCounter > bestMatchNumber) {
@@ -894,7 +983,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 console.log("Found Matches Email:", $scope.emailAddress);
             })
 
-            //Displays the bestMatch's repos. 
+            //Displays the bestMatch's repos.
             var getData = matchService.getRepos(matchesData[$scope.topFive[index]].login);
             getData.then(function (response) {
                 //console.log("JASKJDHKLAJSHDLKJASHDAS",response);
