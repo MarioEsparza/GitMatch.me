@@ -1,7 +1,7 @@
 ﻿<html ng-app="GitMatchApp">
 <head>
-    <!-- Testomg Full Contact API = 2345d9a6b425b1c8 -->
-    <link rel="stylesheet" href="https://gitcdn.link/repo/angular/bower-material/master/angular-material.css">
+    <link rel="shortcut icon" type="image/png" href="favicon.png" />
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>GitMatch</title>
@@ -40,71 +40,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- Git Button -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
 </head>
 <body>
-
-    <!-- Navigation -->
-    <nav class="navbar navbar-custom navbar-fixed-top" role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
-                    <i class="fa fa-bars"></i>
-                </button>
-                <a class="navbar-brand page-scroll" href="#page-top">
-                    <i class="fa fa-github" aria-hidden="true"></i> Git<span class="bold">Match</span>
-                </a>
-            </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse navbar-right navbar-main-collapse">
-                <ul class="nav navbar-nav">
-                    <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
-                    <li class="hidden">
-                        <a href="#page-top"></a>
-                    </li>
-                    <li>
-                        <a href="#!/location">Location Search</a>
-                    </li>
-                    <li>
-                        <a class="page-scroll" href="#about">About</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- /.navbar-collapse -->
-        </div>
-        <!-- /.container -->
-    </nav>
 
 
     <!-- Views -->
     <div ng-view></div>
 
-    <!-- Loading Modal -->
-    <div class="modal fade" id="loading-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-vertical-align">
-                <div class="modal-align-center">
-                    <div class="modal-content">
-                        <div class="modal-header">
-
-                            <h4 class="modal-title" id="myModalLabel"> Results Loading...</h4>
-                        </div>
-                        <div class="modal-body">
-                            <img class="ajax-loader" src="https://upload.wikimedia.org/wikipedia/commons/d/de/Ajax-loader.gif" />
-                        </div>
-                        <div class="modal-footer">
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
     <!-- Google API Dummy Div-->
     <div id="service-helper"></div>
+
     <!-- JS Scripts -->
     <!-- App -->
     <script src="js/app.js"></script>
@@ -119,7 +65,7 @@
     <!-- Controllers -->
     <script src="js/controllers/HomeController.js"></script>
     <script>
-
+        //Stop Modal from scrolling to top
 
         // jQuery to collapse the navbar on scroll
         function collapseNavbar() {
@@ -151,8 +97,7 @@
         });
 
     </script>
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
 </body>
 
 </html>

@@ -101,13 +101,16 @@ body {
 }
 /* Search Bar*/
 .affix {
-    top:40px;
-    left:0px;
+    top:10px;
     position:fixed;
-    z-index: 1000;
+    z-index: 1000;  
     width: 100%;
-    background: #000;
 }
+
+.searchbar-fix{
+  
+}
+
 /*Home Page*/
 
 .header {
@@ -121,10 +124,13 @@ body {
     background-size: cover;
     -o-background-size: cover;
      overflow-x:hidden ;
+      color: #fff;
 }
 
+
+
 .header {
-        color: #fff;
+       
       
 }
 
@@ -135,7 +141,7 @@ body {
 }
 
 .header p {
-	 text-shadow: 0px 3px 0px #000;
+	 text-shadow: 0px 1px 0px #000;
 }
 .languages{
     padding-left: 10px;
@@ -155,10 +161,10 @@ md-virtual-repeat-container .md-virtual-repeat-scroller{
 }
 md-virtual-repeat-container{
     max-height  :150px !important;
-    z-index:1000;
+    z-index:2001;
 }
 .md-virtual-repeat-scroller{
-    z-index:10;
+    z-index:2000;
 }
 
 @media(max-width:768px) {
@@ -172,27 +178,32 @@ md-virtual-repeat-container{
 }
 
 
-/*Match Page*/
+/*Results Page*/
 
-#match-section {
-    display: table;
+.result-section {
+
     position: relative;
     width: 100%;
     height: 100%;
-    background: #1e1e1e no-repeat center center scroll;
+    background-image: none;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
     -o-background-size: cover;
      overflow-x:hidden ;
+    
 }
 
 /* Match Results */
 #match-section h1{
    
 }
-
-.alert-success{
+.match-button{
+    border: none;
+    background-color: #71e88d;
+    margin-top: 15px;
+}
+.match-box {
     margin-bottom: 15px;
 }
 .well{
@@ -217,17 +228,32 @@ figcaption.ratings a:hover{
     }
 .divider {
     border-top:1px solid rgba(0,0,0,0.1);
+    margin-top: 5px;
     }
 .emphasis {
-    border-top: 4px solid transparent;
+    border-top: 5px solid transparent;
     }
 .emphasis:hover {
-    border-top: 4px solid #1abc9c;
+    border-top: 5px solid #0e9f1a;
     }
 .emphasis h2{
     margin-bottom:0;
     }
+    .divider-right {
+    border-right:1px solid rgba(0,0,0,0.1);
+    margin-right: 5px;
+    }
 
+    .emphasis-right{
+     border-right: 5px solid transparent;
+
+    }
+    .emphasis-right:hover{
+     border-right: 5px solid #0e9f1a;
+    }
+    .emphasis-right h2{
+     margin-bottom:0;
+    }
 .chart{
   width: 80%;
   margin: 15px auto;
@@ -236,6 +262,37 @@ figcaption.ratings a:hover{
 .git-user-avatar{
     border-radius: 50%;
 }
+
+
+/*Location Page*/
+
+.location-header {
+    display: table;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: url(../img/background-location.jpg) no-repeat center center scroll;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+     overflow-x:hidden ;
+   
+      color: #fff;
+}
+
+.location-header h1 {
+    color: #fff;
+    font-weight: 600;
+    text-shadow: 0px 3px 0px #000;
+}
+
+#location-section h1 {
+    color: #1a1a1a;
+    font-weight: 600;
+
+}
+
 /*Main App Container*/
 .app-container{		
 	  font-family: 'Roboto', sans-serif;
@@ -263,7 +320,10 @@ figcaption.ratings a:hover{
 		text-align: center;
 		margin-top: 20px;
 }
-
+/* Send Request*/
+.repo-repeater{
+    z-index: 2000;
+}
 
 /*Table*/
 #table-data {
@@ -344,7 +404,11 @@ figcaption.ratings a:hover{
 
 /* Modals*/
 .modal-backdrop.in {
-    opacity: 0.8;
+    opacity: 0.9;
+}
+
+.modal .alert-danger{
+    background: none;
 }
 .modal h1 {
     color: #fff;
@@ -368,7 +432,9 @@ figcaption.ratings a:hover{
     vertical-align: middle;
 }
 
-
+.modal-text{
+    color: #fff;
+}
 
 @media (min-width:320px)  { 
   svg{
@@ -443,19 +509,19 @@ input[type="search"]{
 	}
 	/* Auto Complete Formatting */
 .dropdown-menu{
-    z-index:100;
+    z-index:1100;
 }
 .dropdown-menu li{
-    z-index:300;
+    z-index:1300;
 }
 input[type="search"]{
-    z-index:300;
+    z-index:1300;
 }
 .auto-complete,.md-virtual-repeat-scroller{
-    z-index:200;
+    z-index:1200;
 }
 .md-virtual-repeat-container.md-autocomplete-suggestions-container{
-    z-index:300;
+    z-index:1300;
 }
 	}/* big landscape tablets, laptops, and desktops */ 
 @media (min-width:1281px) { 
@@ -463,19 +529,19 @@ input[type="search"]{
 	
     /* Auto Complete Formatting */
 .dropdown-menu{
-    z-index:100;
+    z-index:1100;
 }
 .dropdown-menu li{
-    z-index:300;
+    z-index:1300;
 }
 input[type="search"]{
-    z-index:300;
+    z-index:1300;
 }
 .auto-complete,.md-virtual-repeat-scroller{
-    z-index:200;
+    z-index:1200;
 }
 .md-virtual-repeat-container.md-autocomplete-suggestions-container{
-    z-index:300;
+    z-index:1300;
 }
     .admin-container{
 
