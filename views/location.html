@@ -78,7 +78,7 @@
                     <a href="#!/">Match <i class="fa fa-Search" aria-hidden="true"></i> </a>
                 </li>
                 <li>
-                    <a class="page-scroll" href="#about">About</a>
+                    <a class="page-scroll" href="#!/about">About</a>
                 </li>
             </ul>
         </div>
@@ -89,7 +89,7 @@
 </nav>
 
 <!-- Header-->
-<header id="top" class="location-header">
+<header id="top" class="location-header" >
     <div class="container text-center vertical-center app-container">
         <div class="row">
             <div class="col-sm-12 col-md-12 col-lg-12">
@@ -145,7 +145,7 @@
                                 <input type="text" class="form-control" name="location" id="location" placeholder="Search location" ng-model="location" ng-blur="removeSpaces(location)" required>
                                 <!-- Submit -->
                                 <div class="input-group-btn check-input-icon">
-                                    <button type="submit" class="btn  btn-default" ng-disabled="userForm.$invalid"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                    <button type="submit" class="btn  btn-default" ng-disabled="userForm.$invalid"><i class="fa fa-search" aria-hidden="true" ></i></button>
                                 </div>
 
                             </div>
@@ -158,9 +158,6 @@
     </div>
 </header>
 
-
-
-
 <!-- Result -->
 <!--Location Results-->
 <section id="location-section" class="result-section" ng-show="showLocationResults">
@@ -170,6 +167,26 @@
                 <h1>{{displayLocation}}</h1>
             </div>
             <div class="col-md-12">
+
+=======
+                    
+                    <!-- Matching Users Display-->
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-md-12 ">
+                                <div class="well profile-matches">
+                                    <div class=" col-xs-12 col-sm-12 col-md-12 text-center">
+
+                                        <div class="col-xs-4 col-sm-4 col-md-3 ">
+                                            <button class="btn btn-success match-button" ng-if="currentTop >=1" ng-click="previousDisplayLoca(currentTop)"><i class="fa fa-chevron-left" aria-hidden="true"></i> Previous</button>
+                                        </div>
+                                        <div class="col-xs-4 col-sm-4 col-md-6">
+                                            <h3>MATCHES <i class="fa fa-check" aria-hidden="true"></i></h3>
+                                        </div>
+                                        <div class="col-xs-4 col-sm-4 col-md-3">
+                                            <button class="btn btn-success match-button" ng-if="currentTop <=9" ng-click="nextDisplayLoca(currentTop)">Next <i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                                        </div>
+
 
                 <!-- Matching Users Display-->
                 <div class="col-md-6">
@@ -218,11 +235,17 @@
 
                                         <a class="btn btn-info btn-block" ng-href="http://github.com/{{currentMatch.login}}?tab=repositories"><span class="fa fa-code"></span> View Repos </a>
                                     </div>
+
                                     <div class="col-xs-12 col-sm-4 emphasis">
                                         <p><small>Followers</small></p>
                                         <h2><strong> {{currentMatch.followers}} </strong></h2>
                                         <!-- Place this tag where you want the button to render. -->
                                         <a class="btn btn-default btn-block" ng-href="{{topUserForSelectedLanguage.html_url}}"><span class="fa fa-github "></span> Follow </a>
+=======
+                                    <div class="col-md-12 divider ">
+                                        <h4><strong>Matching Languages</strong></h4>
+                                        <canvas id="myChartLocationMatch"></canvas>
+
                                     </div>
                                     <div class="col-xs-12 col-sm-4 emphasis alert-success">
                                         <p><small><strong>Collaborate!</strong></small></p>

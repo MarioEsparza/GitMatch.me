@@ -458,7 +458,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 var ctx = document.getElementById('myChartLocationMatch').getContext('2d');
 
                 myChartMatch = new Chart(ctx, {
+
                     type: 'pie',
+
                     data: {
                         labels: matchLanguagesArray,
                         datasets: [{
@@ -601,8 +603,6 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         });
         $q.all(promises).then(function () {
 
-
-
             for (var i = 0; i < matchLanguagesCount.length; i++) {
                 if (matchLanguagesArray[i] != null) {
 
@@ -619,6 +619,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                         $scope.topLanguagesList[z] = $scope.topLanguagesList[z + 1]
                         $scope.topLanguagesList[z + 1] = temp
                         swapped = true
+
 
                     }
                 }
@@ -649,6 +650,40 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 if ($scope.topLanguagesList[l].language) {
                     $scope.chartSelectedLanguage = $scope.topLanguagesList[0].language
                     $scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), $scope.topLanguagesList[l].language);
+
+                }
+
+            } while (swapped)
+            for (var i = 0; i < $scope.topLanguagesList.length; i++) {
+                console.log("Language", $scope.topLanguagesList[i].language, "Count:", $scope.topLanguagesList[i].count)
+            }
+            // Location Chart
+            //Fixed Bug where old pie data showed on hover
+            if (myLocationChart != null) {
+                myLocationChart.destroy();
+            }
+            for (var cm = 0; cm < 10; cm++) {
+                var myData = matchService.getUser(matchesData.items[cm].login, cm);
+                promises.push(myData.then(function (newData) {
+                    matchesData.items[newData.index].email = newData.email;
+
+
+            var language = []
+            var numberOfLanguagestoDisplay = 6;
+            var pieDatasets = [];
+            var pieBackgroundColors = [];
+
+            for (var i = 0; i < numberOfLanguagestoDisplay; i++) {
+                //console.log("Top Language", $scope.topLanguagesList[i].language, "Top Count", $scope.topLanguagesList[i].count);
+                language.push($scope.topLanguagesList[i].language)
+                pieBackgroundColors.push(getColor($scope.topLanguagesList[i].language))
+                pieDatasets.push(numberOfLanguagestoDisplay - (numberOfLanguagestoDisplay - $scope.topLanguagesList[i].count))
+                //$scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), $scope.topLanguagesList[i].language);
+            }
+            for (var l = 0; l < 6; l++) {
+                if ($scope.topLanguagesList[l].language) {
+                    $scope.chartSelectedLanguage = $scope.topLanguagesList[0].language
+                    $scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), $scope.topLanguagesList[l].language);
                 }
             }
             for (var cm = 0; cm < 10; cm++) {
@@ -660,11 +695,13 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
                     matchesData.items[newData.index].location = newData.location;
 
+
                     matchesData.items[newData.index].followers = newData.followers;
                 }))
             }
 
             $timeout(function () {
+
                 for (var tl = 0; tl < 6; tl++) {
                     console.log($scope.topLanguagesList[tl]);
                     var indexFound = topUserUsersStoredLanguages.indexOf($scope.topLanguagesList[tl].language);
@@ -682,6 +719,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             }, 1000);
 
             $timeout(function () {
+
                 $q.all(promises).then(function () {
 
 
