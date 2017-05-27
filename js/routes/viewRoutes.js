@@ -10,7 +10,10 @@ app.config(function ($routeProvider) {
                templateUrl: 'views/location.html',
                controller: 'HomeController'
            })
-        
+        .when('/about', {
+            templateUrl: 'views/about.html',
+            controller: 'HomeController'
+        })
         /*
         .when('/checkout', {
             templateUrl: 'views/checkout.html',

@@ -1,5 +1,5 @@
 app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', '$anchorScroll', 'locationService', 'matchService', 'jsonService', '$q', 'topLocationService', function ($scope, $timeout, $http, $sce, $location, $anchorScroll, locationService, matchService, jsonService, $q, topLocationService) {
-
+    
     //Variables
     $scope.Matchee = [];
     $scope.topLanguagesList = [];
@@ -399,7 +399,83 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 $scope.firstFive.push(matchesData.items[x])
             }
             $scope.currentMatch = matchesData.items[index];
-            
+
+            //Displays the bestMatch's repos. 
+            var getData = matchService.getRepos(matchesData.items[index].login);
+            getData.then(function (response) {
+                //Stores the language for every repo found
+                $scope.currentMatchRepo = response;
+
+                angular.forEach($scope.currentMatchRepo, function (value, key) {
+
+                    //Checks to see if the language match with the searcher's array of languages (user looking for matches)
+                    if ($scope.currentMatchRepo.length) {
+                        for (var i = 0; i < $scope.languagesSelected.length; i++) {
+                            if (value.language == $scope.languagesSelected[i]) {
+                                //Then checks to se if it's not already in array
+                                var matchItemIndex = matchLanguagesArray.indexOf(value.language);
+                                if (matchItemIndex < 0) {
+
+                                    matchLanguagesArray.push(value.language);
+                                    matchLanguagesCount.push(1)
+
+                                } else {
+                                    matchLanguagesCount[matchItemIndex]++;
+                                }
+                            }
+                        }
+                    }
+
+                });
+
+                if (myChartLocationMatch != null) {
+                    myChartLocationMatch.destroy();
+                }
+
+                var totalItems = matchLanguagesArray.length;
+                var pieDatasets = [];
+                var pieBackgroundColors = [];
+           
+
+                for (var i = 0; i < matchLanguagesArray.length; i++) {
+                    pieBackgroundColors.push(getColor(matchLanguagesArray[i]))
+                    pieDatasets.push(totalItems - (totalItems - matchLanguagesCount[i]))
+                }
+
+
+                function getColor(language) {
+                    for (var z = 0; z < gitColors.length; z++) {
+                        if (gitColors[z].name == language) {
+                            //console.log("Color Found in JSON:", gitColors[z].color);
+                            return gitColors[z].color
+                        }
+                    }
+                }
+
+                console.log("Radar Data: ", totalItems, pieDatasets, pieBackgroundColors);
+                var ctx = document.getElementById('myChartLocationMatch').getContext('2d');
+
+                myChartMatch = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: matchLanguagesArray,
+                        datasets: [{
+                            data: pieDatasets,
+                            backgroundColor: pieBackgroundColors
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            responsive: true,
+
+                        }
+                    }
+                });
+
+            }, function error(error) {
+                console.log("ERROR: NO REPOS FOUND")
+
+            })
         };
     };
 
@@ -431,17 +507,17 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         }
         else {
             if ($scope.topLanguagesList.length != 0) {
-                               // Get top Languages for the matching
-                               getLanguages();
+                // Get top Languages for the matching
+                getLanguages();
             } else {
-                               //display modal error
-           }
+                //display modal error
+            }
             console.log("No new search locations were found, adding another extend may not yield much and whether or not to do so will come down to how much we value the GitHub API calls")
         }
     }
     var promises = []
     function getLanguages(matchesData) {
-        
+
 
 
         // Helper Function to get Top Languages
@@ -457,7 +533,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                     if ($scope.currentMatchRepo.length) {
                         //Then checks to se if it's not already in array
                         var matchItemIndex = matchLanguagesArray.indexOf(value.language);
-                        
+
                         if (matchItemIndex < 0) {
 
                             matchLanguagesArray.push(value.language);
@@ -485,201 +561,201 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
 
 
-        
-       
-    document.getElementById("myChartLocation").onclick = function (evt) {
-        console.log("Bar Clicked: ", myLocationChart.getElementsAtEvent(evt)[0]._model.label);
 
-        //console.log("Top USers Array: ", $scope.topUserUsersArray);
-        $scope.chartSelectedLanguage = myLocationChart.getElementsAtEvent(evt)[0]._model.label
-        $scope.loadingResults = true;
-       
+
+        document.getElementById("myChartLocation").onclick = function (evt) {
+            console.log("Bar Clicked: ", myLocationChart.getElementsAtEvent(evt)[0]._model.label);
+
+            //console.log("Top USers Array: ", $scope.topUserUsersArray);
+            $scope.chartSelectedLanguage = myLocationChart.getElementsAtEvent(evt)[0]._model.label
+            $scope.loadingResults = true;
+
             //Then checks to se if it's not already in array
-        var indexFound = topUserUsersStoredLanguages.indexOf(myLocationChart.getElementsAtEvent(evt)[0]._model.label);
-        
-        if (indexFound < 0) {
+            var indexFound = topUserUsersStoredLanguages.indexOf(myLocationChart.getElementsAtEvent(evt)[0]._model.label);
+
+            if (indexFound < 0) {
                 $scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), myLocationChart.getElementsAtEvent(evt)[0]._model.label);
 
-        } else {
-           // console.log("Found in STORED in: ", indexFound);
-           // console.log("Found Object: ", topUserUsersArray[indexFound].users[0]);          
-            //console.log("Display Scope 2: ", $scope.topUserForSelectedLanguage);
-            $scope.$apply(function () {
-                $scope.topUserForSelectedLanguage = topUserUsersArray[indexFound].users[0];
-                $scope.loadingResults = false;
-            });
+            } else {
+                // console.log("Found in STORED in: ", indexFound);
+                // console.log("Found Object: ", topUserUsersArray[indexFound].users[0]);          
+                //console.log("Display Scope 2: ", $scope.topUserForSelectedLanguage);
+                $scope.$apply(function () {
+                    $scope.topUserForSelectedLanguage = topUserUsersArray[indexFound].users[0];
+                    $scope.loadingResults = false;
+                });
 
 
             }
 
-      
-        //alert(myLocationChart.getElementsAtEvent(evt));
-    // use _datasetIndex and _index from each element of the activePoints array
-        ;}
-    angular.forEach($scope.returnLocationUsersData, function (username, index) {
 
-        promises.push(findLocationRepos(username))
-    });
-    $q.all(promises).then(function () {
-        
-           
-
-        for (var i = 0; i < matchLanguagesCount.length; i++) {
-            if (matchLanguagesArray[i] != null) {
-
-                $scope.topLanguagesList.push({ language: matchLanguagesArray[i], count: matchLanguagesCount[i] });
-            }
+            //alert(myLocationChart.getElementsAtEvent(evt));
+            // use _datasetIndex and _index from each element of the activePoints array
+            ;
         }
+        angular.forEach($scope.returnLocationUsersData, function (username, index) {
 
-        var swapped;
-        do {
-            swapped = false;
-            for (var z = 0; z < $scope.topLanguagesList.length - 1; z++) {
-                if (parseInt($scope.topLanguagesList[z].count) < parseInt($scope.topLanguagesList[z + 1].count)) {
-                    var temp = { language: $scope.topLanguagesList[z].language, count: $scope.topLanguagesList[z].count };
-                    $scope.topLanguagesList[z] = $scope.topLanguagesList[z + 1]
-                    $scope.topLanguagesList[z + 1] = temp
-                    swapped = true
+            promises.push(findLocationRepos(username))
+        });
+        $q.all(promises).then(function () {
 
+
+
+            for (var i = 0; i < matchLanguagesCount.length; i++) {
+                if (matchLanguagesArray[i] != null) {
+
+                    $scope.topLanguagesList.push({ language: matchLanguagesArray[i], count: matchLanguagesCount[i] });
                 }
             }
 
-        } while (swapped)
-        for (var i = 0; i < $scope.topLanguagesList.length; i++) {
-            console.log("Language", $scope.topLanguagesList[i].language, "Count:", $scope.topLanguagesList[i].count)
-        }
-        // Location Chart
-        //Fixed Bug where old pie data showed on hover
-        if (myLocationChart != null) {
-            myLocationChart.destroy();
-        }
+            var swapped;
+            do {
+                swapped = false;
+                for (var z = 0; z < $scope.topLanguagesList.length - 1; z++) {
+                    if (parseInt($scope.topLanguagesList[z].count) < parseInt($scope.topLanguagesList[z + 1].count)) {
+                        var temp = { language: $scope.topLanguagesList[z].language, count: $scope.topLanguagesList[z].count };
+                        $scope.topLanguagesList[z] = $scope.topLanguagesList[z + 1]
+                        $scope.topLanguagesList[z + 1] = temp
+                        swapped = true
 
-        var language = []
-        var numberOfLanguagestoDisplay = 6;
-        var pieDatasets = [];
-        var pieBackgroundColors = [];
+                    }
+                }
 
-        for (var i = 0; i < numberOfLanguagestoDisplay; i++) {
-            //console.log("Top Language", $scope.topLanguagesList[i].language, "Top Count", $scope.topLanguagesList[i].count);
-            language.push($scope.topLanguagesList[i].language)
-            pieBackgroundColors.push(getColor($scope.topLanguagesList[i].language))
-            pieDatasets.push(numberOfLanguagestoDisplay - (numberOfLanguagestoDisplay - $scope.topLanguagesList[i].count))
-            //$scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), $scope.topLanguagesList[i].language);
-        }
-        for (var l = 0; l < 6; l++) {
-            if ($scope.topLanguagesList[l].language) {
-                $scope.chartSelectedLanguage = $scope.topLanguagesList[0].language
-                $scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), $scope.topLanguagesList[l].language);
+            } while (swapped)
+            for (var i = 0; i < $scope.topLanguagesList.length; i++) {
+                console.log("Language", $scope.topLanguagesList[i].language, "Count:", $scope.topLanguagesList[i].count)
             }
-        }
-        for (var cm = 0; cm < 10; cm++) {
-            var myData = matchService.getUser(matchesData.items[cm].login, cm);
-            promises.push(myData.then(function(newData){
-                matchesData.items[newData.index].email = newData.email;
-                
-                matchesData.items[newData.index].public_repos = newData.public_repos;
-                
-                matchesData.items[newData.index].location = newData.location;
-                
-                matchesData.items[newData.index].followers = newData.followers;
-            }))
-        }
-        $timeout(function () {
+            // Location Chart
+            //Fixed Bug where old pie data showed on hover
+            if (myLocationChart != null) {
+                myLocationChart.destroy();
+            }
 
-      
-        for (var tl = 0; tl < 6; tl++) {
-            console.log($scope.topLanguagesList[tl]);
-            var indexFound = topUserUsersStoredLanguages.indexOf($scope.topLanguagesList[tl].language);
-            console.log(indexFound);
-            console.log(topUserUsersStoredLanguages);
-            console.log($scope.topLanguagesList);
-            console.log(topUserUsersArray);
-            var damnVariables = matchService.getUser(topUserUsersArray[indexFound].users[0].login, indexFound);
-            promises.push(damnVariables.then(function(data){
-                topUserUsersArray[data.index].users[0].followers = data.followers;
-                topUserUsersArray[data.index].users[0].html_url = data.html_url;
-                console.log(topUserUsersArray[data.index].users[0]);
-            }))
-        }
-        }, 1000);
+            var language = []
+            var numberOfLanguagestoDisplay = 6;
+            var pieDatasets = [];
+            var pieBackgroundColors = [];
 
-        $timeout(function () {
-            $q.all(promises).then(function () {
-                
+            for (var i = 0; i < numberOfLanguagestoDisplay; i++) {
+                //console.log("Top Language", $scope.topLanguagesList[i].language, "Top Count", $scope.topLanguagesList[i].count);
+                language.push($scope.topLanguagesList[i].language)
+                pieBackgroundColors.push(getColor($scope.topLanguagesList[i].language))
+                pieDatasets.push(numberOfLanguagestoDisplay - (numberOfLanguagestoDisplay - $scope.topLanguagesList[i].count))
+                //$scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), $scope.topLanguagesList[i].language);
+            }
+            for (var l = 0; l < 6; l++) {
+                if ($scope.topLanguagesList[l].language) {
+                    $scope.chartSelectedLanguage = $scope.topLanguagesList[0].language
+                    $scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), $scope.topLanguagesList[l].language);
+                }
+            }
+            for (var cm = 0; cm < 10; cm++) {
+                var myData = matchService.getUser(matchesData.items[cm].login, cm);
+                promises.push(myData.then(function (newData) {
+                    matchesData.items[newData.index].email = newData.email;
 
-                $scope.displayResultsLocation(matchesData);
-                $scope.displayLocation = displayLocationGlobal;
+                    matchesData.items[newData.index].public_repos = newData.public_repos;
 
-                $scope.googleBG(googleLocationToken, 'location');
-                $('#loading-modal').modal('toggle');
-                $('html, body').animate({
-                    scrollTop: $("#location-section").offset().top
-                }, 1000);
-                var indexFound = topUserUsersStoredLanguages.indexOf($scope.topLanguagesList[0].language);
-                
+                    matchesData.items[newData.index].location = newData.location;
+
+                    matchesData.items[newData.index].followers = newData.followers;
+                }))
+            }
+
+            $timeout(function () {
+                for (var tl = 0; tl < 6; tl++) {
+                    console.log($scope.topLanguagesList[tl]);
+                    var indexFound = topUserUsersStoredLanguages.indexOf($scope.topLanguagesList[tl].language);
+                    console.log(indexFound);
+                    console.log(topUserUsersStoredLanguages);
+                    console.log($scope.topLanguagesList);
+                    console.log(topUserUsersArray);
+                    var damnVariables = matchService.getUser(topUserUsersArray[indexFound].users[0].login, indexFound);
+                    promises.push(damnVariables.then(function (data) {
+                        topUserUsersArray[data.index].users[0].followers = data.followers;
+                        topUserUsersArray[data.index].users[0].html_url = data.html_url;
+                        console.log(topUserUsersArray[data.index].users[0]);
+                    }))
+                }
+            }, 1000);
+
+            $timeout(function () {
+                $q.all(promises).then(function () {
+
+
+                    $scope.displayResultsLocation(matchesData);
+                    $scope.displayLocation = displayLocationGlobal;
+
+                    $scope.googleBG(googleLocationToken, 'location');
+                    $('#loading-modal').modal('toggle');
+                    $('html, body').animate({
+                        scrollTop: $("#location-section").offset().top
+                    }, 1000);
+                    var indexFound = topUserUsersStoredLanguages.indexOf($scope.topLanguagesList[0].language);
+
                     console.log("Applying Now");
                     $scope.topUserForSelectedLanguage = topUserUsersArray[indexFound].users[0];
                     $scope.loadingResults = false;
-                
-            })
-            
-                
-                
-            
-            
-        }, 1000);
-        
 
-        function getColor(language) {
-            for (var z = 0; z < gitColors.length; z++) {
-                if (gitColors[z].name == language) {
-                    //console.log("Color Found in JSON:", gitColors[z].color);
-                    return gitColors[z].color
+                })
+
+
+
+
+
+            }, 1000);
+
+
+            function getColor(language) {
+                for (var z = 0; z < gitColors.length; z++) {
+                    if (gitColors[z].name == language) {
+                        //console.log("Color Found in JSON:", gitColors[z].color);
+                        return gitColors[z].color
+                    }
                 }
             }
-        }
 
-        var ctx = document.getElementById('myChartLocation').getContext('2d');
+            var ctx = document.getElementById('myChartLocation').getContext('2d');
 
-        myLocationChart = new Chart(ctx, {
-            type: 'horizontalBar',
-            data: {
-                labels: language,
-                datasets: [{
-                    data: pieDatasets,
-                    backgroundColor: pieBackgroundColors
-                }]
-            },
-            options: {
-                scales: {
-
-                    responsive: true,
-                    xAxes: [{
-                        display: false
-                    }],
-                    yAxes: [{
-                        gridLines: {
-                            color: "rgba(0, 0, 0, 0)",
-                        }
+            myLocationChart = new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: language,
+                    datasets: [{
+                        data: pieDatasets,
+                        backgroundColor: pieBackgroundColors
                     }]
+                },
+                options: {
+                    scales: {
 
-                },
-                legend: {
-                    display: false
-                },
-                tooltips: {
-                    enabled: false
+                        responsive: true,
+                        xAxes: [{
+                            display: false
+                        }],
+                        yAxes: [{
+                            gridLines: {
+                                color: "rgba(0, 0, 0, 0)",
+                            }
+                        }]
+
+                    },
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        enabled: false
+                    }
+
                 }
+            });
 
-            }
-        });
+        })
 
-    })
 
-    
-        
-    
-}
+
+
+    }
 
     // Works now!
     $scope.gitTopAPI = function (locationT, languageToken) {
@@ -689,7 +765,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         console.log("LocationToken: ", locationToken);
         console.log("LanguageToken: ", languageToken);
 
-     
+
         //languageToken = languageToken.replace(/\s+/g, '+').toLowerCase();
 
         //Passes location to Factory. Determines whether return data is good.
@@ -710,10 +786,10 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             //console.log("Display Scope 1: ", $scope.topUserForSelectedLanguage);
             topUserUsersArray.push($scope.returnData);
             topUserUsersStoredLanguages.push(languageToken);
-                //Hide Loader div
+            //Hide Loader div
             $scope.loadingResults = false;
-          
-        
+
+
         }))
     };
 
@@ -735,7 +811,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         $scope.currentTop = 0;
 
         //NEW - Mario
-  
+
         gotTop = false;
         var matchLocationToken = null;
         var matchLanguageToken = "";
@@ -876,7 +952,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 }
                 //console.table($scope.returnData.items);
             }, function error(error) {
-            //NEW - Mario
+                //NEW - Mario
                 //console.log("ERROR: USERNOT FOUND")
                 $(".match-input").addClass('alert-danger');
                 $('#error-modal').modal('toggle');
@@ -884,9 +960,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 $timeout(function () {
                     $('#error-modal').modal('toggle');
                 }, 3000);
-   
+
             })
-           
+
         }//End Valid Submit
     };
 
@@ -1040,7 +1116,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         //Sets the zoom for the background image of the next section
         var googleStaticMapUrl = "https://maps.googleapis.com/maps/api/staticmap?center=" + location + googleMapStyle1 + '&zoom=' + mapZoom + '&size=640x640&key=' + googleAPIkey;
 
-        $('#'+ section +'-section').css({ 'background-image': '  linear-gradient( 0deg, rgba(255,255,255, 0.9),  rgba(174,223,242, 0.3)), url(' + googleStaticMapUrl + ')' });
+        $('#' + section + '-section').css({ 'background-image': '  linear-gradient( 0deg, rgba(255,255,255, 0.9),  rgba(174,223,242, 0.3)), url(' + googleStaticMapUrl + ')' });
     };
 
     //Helps determine the map zoom
@@ -1177,7 +1253,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                             }
                         }
                     }
-       
+
 
                 });
                 bestMatchArrayLocation.push(index);
@@ -1244,7 +1320,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                     } else {
                         matchScore.push(maxCount);
                         //console.log(maxCount);
-                       // console.log(maxIndex);
+                        // console.log(maxIndex);
                         matchesPercents.push(maxCount);
                         $scope.topFiveOriginalIndex.push(maxIndex);
                         $scope.topFive.push(bestMatchArrayLocation[bestMatchArrayLocation.indexOf(maxIndex)]);
@@ -1252,30 +1328,32 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                         bestMatchArrayLocation.splice(bestMatchArrayLocation.indexOf(maxIndex), 1);
                     }
                 }
-                // GET TOP STARS FOR MATCHES
-                var getMatchDataSearcher = topLocationService.getUserRepos($scope.userName);
-                load.push(getMatchDataSearcher.then(function (data) {
+            }
+
+            // GET TOP STARS FOR MATCHES
+            var getMatchDataSearcher = topLocationService.getUserRepos($scope.userName);
+            load.push(getMatchDataSearcher.then(function (data) {
+                var starCounter = 0;
+                for (var i = 0; i < data.user.rankings.length; i++) {
+                    starCounter = starCounter + data.user.rankings[i].stars_count;
+                }
+                console.log("Username: ", data.user.login, " Star Count: ", starCounter);
+                $scope.Searcher = { username: data.user.login, stars: starCounter };
+            }, function (error) {
+                // ERROR GOES HERE
+            }));
+
+            for (var b = 0; b < $scope.topFive.length; b++) {
+                var getMatchDataMatchee = topLocationService.getUserRepos(matchesData[$scope.topFive[b]].login);
+                load.push(getMatchDataMatchee.then(function (data) {
                     var starCounter = 0;
                     for (var i = 0; i < data.user.rankings.length; i++) {
                         starCounter = starCounter + data.user.rankings[i].stars_count;
                     }
                     console.log("Username: ", data.user.login, " Star Count: ", starCounter);
-                    $scope.Searcher = { username: data.user.login, stars: starCounter };
+                    $scope.Matchee.push({ username: data.user.login, stars: starCounter });
                 }, function (error) {
-                    // ERROR GOES HERE
-                }));
-                for (var b = 0; b < $scope.topFive.length; b++) {
-                    var getMatchDataMatchee = topLocationService.getUserRepos(matchesData[$scope.topFive[b]].login);
-                    load.push(getMatchDataMatchee.then(function (data) {
-                        var starCounter = 0;
-                        for (var i = 0; i < data.user.rankings.length; i++) {
-                            starCounter = starCounter + data.user.rankings[i].stars_count;
-                        }
-                        console.log("Username: ", data.user.login, " Star Count: ", starCounter);
-                        $scope.Matchee.push({ username: data.user.login, stars: starCounter });
-                    }, function (error) {
-                    }))
-                }
+                }))
             }
             for (var x = 0; x < $scope.topFive.length; x++) {
                 console.log("TOP FIVE", matchesData[$scope.topFive[x]].login);
@@ -1341,7 +1419,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                     pieDatasets.push(totalItems - (totalItems - matchLanguagesCount[i]))
                 }
 
-
+              
 
                 var ctx = document.getElementById('myChartMatch').getContext('2d');
 
@@ -2141,8 +2219,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 username: $scope.username.toLowerCase()
             }
 
-            })
-       
+        })
+
     }
 
 }]);

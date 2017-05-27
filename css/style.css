@@ -127,7 +127,9 @@ body {
       color: #fff;
 }
 
-
+#top {
+    overflow-y: hidden;
+}
 
 .header {
        
