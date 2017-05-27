@@ -113,7 +113,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
 
     // Locations to be used as Check Boxes
-    $scope.languages = ["JavaScript", "Python", "C#"];
+    $scope.languages = ["JavaScript", "Python", "C"];
 
     var getData = jsonService.getColors();
     getData.then(function (response) {
@@ -133,7 +133,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     $scope.languagesSelected = [];
 
     $scope.addLang = function (searchText) {
-        if (searchText != "" && !$scope.languages.includes(searchText)) {
+        console.log(searchText);
+        if (searchText != "" && $scope.languages.indexOf(searchText) == -1 && searchText != undefined) {
+            
             $scope.languages.push(searchText);
             $scope.toggleSelection(searchText);
             $scope.searchText = "";
@@ -142,7 +144,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
 
             }
             //console.log($scope.languages.length);
-        } else if ($scope.languages.includes(searchText)) {
+        } else if ($scope.languages.includes(searchText) && searchText != undefined) {
             if ($scope.languagesSelected.indexOf(searchText) == -1) {
                 $scope.toggleSelection(searchText);
                 $scope.searchText = "";
@@ -456,7 +458,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 var ctx = document.getElementById('myChartLocationMatch').getContext('2d');
 
                 myChartMatch = new Chart(ctx, {
-                    type: 'radar',
+                    type: 'pie',
                     data: {
                         labels: matchLanguagesArray,
                         datasets: [{
