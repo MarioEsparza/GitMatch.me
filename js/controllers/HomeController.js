@@ -581,6 +581,24 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 matchesData.items[newData.index].followers = newData.followers;
             }))
         }
+        $timeout(function () {
+
+      
+        for (var tl = 0; tl < 6; tl++) {
+            console.log($scope.topLanguagesList[tl]);
+            var indexFound = topUserUsersStoredLanguages.indexOf($scope.topLanguagesList[tl].language);
+            console.log(indexFound);
+            console.log(topUserUsersStoredLanguages);
+            console.log($scope.topLanguagesList);
+            console.log(topUserUsersArray);
+            var damnVariables = matchService.getUser(topUserUsersArray[indexFound].users[0].login, indexFound);
+            promises.push(damnVariables.then(function(data){
+                topUserUsersArray[data.index].users[0].followers = data.followers;
+                topUserUsersArray[data.index].users[0].html_url = data.html_url;
+                console.log(topUserUsersArray[data.index].users[0]);
+            }))
+        }
+        }, 1000);
 
         $timeout(function () {
             $q.all(promises).then(function () {

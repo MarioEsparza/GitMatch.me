@@ -185,7 +185,7 @@
                                             <h3>MATCHES <i class="fa fa-check" aria-hidden="true"></i></h3>
                                         </div>
                                         <div class="col-xs-4 col-sm-4 col-md-3">
-                                            <button class="btn btn-success match-button" ng-if="currentTop <=3" ng-click="nextDisplayLoca(currentTop)">Next <i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                                            <button class="btn btn-success match-button" ng-if="currentTop <=8" ng-click="nextDisplayLoca(currentTop)">Next <i class="fa fa-chevron-right" aria-hidden="true"></i></button>
                                         </div>
 
                                     </div>
@@ -239,11 +239,17 @@
 
                                             <a class="btn btn-info btn-block" ng-href="http://github.com/{{currentMatch.login}}?tab=repositories"><span class="fa fa-code"></span> View Repos </a>
                                         </div>
-                                        <div class="col-xs-12 col-sm-6 emphasis">
+                                        <div class="col-xs-12 col-sm-4 emphasis" ng-if="!topUserForSelectedLanguage.followers">
                                             <p><small>Followers</small></p>
                                             <h2><strong> {{currentMatch.followers}} </strong></h2>
                                             <!-- Place this tag where you want the button to render. -->
                                             <a class="btn btn-default btn-block" ng-href="{{currentMatch.html_url}}"><span class="fa fa-github "></span> Follow </a>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-4 emphasis" ng-if="topUserForSelectedLanguage.followers">
+                                            <p><small>Followers</small></p>
+                                            <h2><strong> {{currentMatch.followers}} </strong></h2>
+                                            <!-- Place this tag where you want the button to render. -->
+                                            <a class="btn btn-default btn-block" ng-href="{{topUserForSelectedLanguage.html_url}}"><span class="fa fa-github "></span> Follow </a>
                                         </div>
                                     </div>
                                 </div>
@@ -295,7 +301,7 @@
                                         </div>
                                         <div class="col-xs-12 col-sm-4 emphasis">
                                             <p><small>Followers</small></p>
-                                            <h2><strong> {{currentMatch.followers}} </strong></h2>
+                                            <h2><strong> {{topUserForSelectedLanguage.followers}} </strong></h2>
                                             <!-- Place this tag where you want the button to render. -->
                                             <a class="btn btn-default btn-block" ng-href="{{currentMatch.html_url}}"><span class="fa fa-github "></span> Follow </a>
                                         </div>
@@ -315,7 +321,7 @@
                                         </div>
                                         <div class="col-xs-12 col-sm-6 emphasis">
                                             <p><small>Followers</small></p>
-                                            <h2><strong> {{currentMatch.followers}} </strong></h2>
+                                            <h2><strong> {{topUserForSelectedLanguage.followers}} </strong></h2>
                                             <!-- Place this tag where you want the button to render. -->
                                             <a class="btn btn-default btn-block" ng-href="{{currentMatch.html_url}}"><span class="fa fa-github "></span> Follow </a>
                                         </div>
