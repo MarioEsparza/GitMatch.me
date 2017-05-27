@@ -4,32 +4,32 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
     };
     matchService.getLocation = function (username) {
         var options = {
-            
-                method: 'GET',
+
+            method: 'GET',
             url: 'https://api.github.com/users/' + username,
-            headers: 
+            headers:
                 {
-                    'Authorization': "token c2369dd9c97838ae4c98fd6595ef70f07541f3b1"
+                    'Authorization': "token "
                 }
 
 
         }
 
 
-        
-               return $http(options)
-                       .then(function (result) {
-                           return result.data;
-                       });
+
+        return $http(options)
+                .then(function (result) {
+                    return result.data;
+                });
     };
-    matchService.getUser = function (username,index) {
+    matchService.getUser = function (username, index) {
         var options = {
 
             method: 'GET',
             url: 'https://api.github.com/users/' + username,
             headers:
                 {
-                    'Authorization': "token c2369dd9c97838ae4c98fd6595ef70f07541f3b1"
+                    'Authorization': "token "
                 }
 
 
@@ -51,18 +51,18 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/users/' + username + '/repos?sort=updated',
             headers:
                 {
-                    'Authorization': "token c2369dd9c97838ae4c98fd6595ef70f07541f3b1"
+                    'Authorization': "token "
                 }
 
 
         }
-               return $http(options)
-                             .then(function (result) {
-                                 //console.log(result.data);
-                                 
-                                 result.data.newIndex = j;
-                                 return result.data;
-                             });
+        return $http(options)
+                      .then(function (result) {
+                          //console.log(result.data);
+
+                          result.data.newIndex = j;
+                          return result.data;
+                      });
     };
     matchService.getLocationUsers = function (location) {
         console.log("getLocationUser!");
@@ -72,7 +72,7 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/search/users?q=location%3A' + location,
             headers:
                 {
-                    'Authorization': "token c2369dd9c97838ae4c98fd6595ef70f07541f3b1"
+                    'Authorization': "token "
                 }
 
 
@@ -83,6 +83,6 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
                 });
     };
 
-        return matchService;
+    return matchService;
 
 }]);
