@@ -8,7 +8,7 @@ app.factory('locationService', ['$http', function ($http) {
                 url: 'https://api.github.com/search/users?q=location%3A' + location + language,
                 headers:
                     {
-                        'Authorization': "token c2369dd9c97838ae4c98fd6595ef70f07541f3b1"
+                        'Authorization': "token 349ba6fbff6665eaed468f30e6b2877a8afacc32"
                     }
 
 

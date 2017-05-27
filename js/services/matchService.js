@@ -9,7 +9,7 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/users/' + username,
             headers: 
                 {
-                    'Authorization': "token c2369dd9c97838ae4c98fd6595ef70f07541f3b1"
+                    'Authorization': "token 349ba6fbff6665eaed468f30e6b2877a8afacc32"
                 }
 
 
@@ -29,7 +29,7 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/users/' + username,
             headers:
                 {
-                    'Authorization': "token c2369dd9c97838ae4c98fd6595ef70f07541f3b1"
+                    'Authorization': "token 349ba6fbff6665eaed468f30e6b2877a8afacc32"
                 }
 
 
@@ -51,7 +51,7 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/users/' + username + '/repos?sort=updated',
             headers:
                 {
-                    'Authorization': "token c2369dd9c97838ae4c98fd6595ef70f07541f3b1"
+                    'Authorization': "token 349ba6fbff6665eaed468f30e6b2877a8afacc32"
                 }
 
 
@@ -72,7 +72,7 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/search/users?q=location%3A' + location,
             headers:
                 {
-                    'Authorization': "token c2369dd9c97838ae4c98fd6595ef70f07541f3b1"
+                    'Authorization': "token 349ba6fbff6665eaed468f30e6b2877a8afacc32"
                 }
 
 

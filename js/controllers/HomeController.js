@@ -1,6 +1,7 @@
 app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$location', '$anchorScroll', 'locationService', 'matchService', 'jsonService', '$q', 'topLocationService', function ($scope, $timeout, $http, $sce, $location, $anchorScroll, locationService, matchService, jsonService, $q, topLocationService) {
 
     //Variables
+    $scope.Matchee = [];
     $scope.topLanguagesList = [];
     var matchesData = null;
     const googleAPIkey = "AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8"
@@ -390,7 +391,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         }
         function displayMatches(index) { 
         
-            for (var x = 0; x < 5; x++) {
+            for (var x = 0; x < 10; x++) {
                 console.log("LOCATION TOP FIVE", matchesData.items[x]);
                 $scope.firstFive.push(matchesData.items[x])
             }
@@ -568,7 +569,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                 $scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), $scope.topLanguagesList[l].language);
             }
         }
-        for (var cm = 0; cm < 5; cm++) {
+        for (var cm = 0; cm < 10; cm++) {
             var myData = matchService.getUser(matchesData.items[cm].login, cm);
             promises.push(myData.then(function(newData){
                 matchesData.items[newData.index].email = newData.email;
@@ -1202,6 +1203,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             bestMatchNum = bestMatchArrayLocation;
             //console.log("match array: ", bestMatchArrayLocation);
             //console.log("match array count: ", bestMatchArrayCount);
+            var load = [];
             if (index == 0 && !gotTop) {
 
                 var maxCount = 0;
@@ -1228,6 +1230,30 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                         bestMatchArrayCount.splice(bestMatchArrayLocation.indexOf(maxIndex), 1);
                         bestMatchArrayLocation.splice(bestMatchArrayLocation.indexOf(maxIndex), 1);
                     }
+                }
+                // GET TOP STARS FOR MATCHES
+                var getMatchDataSearcher = topLocationService.getUserRepos($scope.userName);
+                load.push(getMatchDataSearcher.then(function (data) {
+                    var starCounter = 0;
+                    for (var i = 0; i < data.user.rankings.length; i++) {
+                        starCounter = starCounter + data.user.rankings[i].stars_count;
+                    }
+                    console.log("Username: ", data.user.login, " Star Count: ", starCounter);
+                    $scope.Searcher = { username: data.user.login, stars: starCounter };
+                }, function (error) {
+                    // ERROR GOES HERE
+                }));
+                for (var b = 0; b < $scope.topFive.length; b++) {
+                    var getMatchDataMatchee = topLocationService.getUserRepos(matchesData[$scope.topFive[b]].login);
+                    load.push(getMatchDataMatchee.then(function (data) {
+                        var starCounter = 0;
+                        for (var i = 0; i < data.user.rankings.length; i++) {
+                            starCounter = starCounter + data.user.rankings[i].stars_count;
+                        }
+                        console.log("Username: ", data.user.login, " Star Count: ", starCounter);
+                        $scope.Matchee.push({ username: data.user.login, stars: starCounter });
+                    }, function (error) {
+                    }))
                 }
             }
             for (var x = 0; x < $scope.topFive.length; x++) {
