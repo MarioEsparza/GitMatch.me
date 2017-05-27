@@ -390,7 +390,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             displayMatches(index);
         }
         function displayMatches(index) { 
-        
+            matchLanguagesArray = [];
             for (var x = 0; x < 10; x++) {
                 console.log("LOCATION TOP FIVE", matchesData.items[x]);
                 $scope.firstFive.push(matchesData.items[x])
