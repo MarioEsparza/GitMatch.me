@@ -27,6 +27,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     var myChart = null;
     var myChartMatch = null;
     var myLocationChart = null;
+    var myChartLocationMatch = null;
     var bestMatch_Language = [];
     var languageToken;
     var gotTop = false;
@@ -51,6 +52,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     var usernameSender = "";
     var usernameReceiver = "";
     $scope.loadingResults = false;
+
     //New - Mario
     $scope.errorLocation = null;
     // Send Email Function
@@ -182,7 +184,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             top: $(window).height() * .50
         }
     });
-  
+
     //Near Submit
     $scope.findNear = function () {
         var matchLanguagesArray = [];
@@ -190,12 +192,12 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         //Resets stored top users array
         topUserUsersArray.length = [];
         topUserUsersStoredLanguages = [];
-   
+
 
         if ($scope.userForm.$valid) {
             // Remove Spaces from input
             $('#loading-modal').modal('toggle');
-    
+
             var locationToken = $scope.location
             var gitLocationToken = null;
 
@@ -209,14 +211,14 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                   gitLocationToken = locationToken.replace(/\s+/g, '-').toLowerCase();
 
                   //Dynamically the background for the match sectio based on user location
-                
+
                   //$scope.getTop();
                   //Gets user for that location (No Language Filter)
 
                   var getData = matchService.getLocationUsers(gitLocationToken, languangeToken);
                   getData.then(function (response) {
                       // console.log(response);
-                      $scope.returnLocationUsersData = response.items;     
+                      $scope.returnLocationUsersData = response.items;
 
                   }, function (fail) {
                       console.log(fail);
@@ -280,7 +282,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         }
         return languageT;
     }
-    
+
     $scope.gitAPI = function (locationT) {
 
 
@@ -296,10 +298,10 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
         //Passes location to Factory. Determines whether return data is good.
         var getData = locationService.getUsers(locationToken, languangeToken);
         getData.then(function (response) {
-           // console.log(response);
+            // console.log(response);
             $scope.returnData = response;
             matchesData = null;
-          
+
             // Creates appended list of users returned
             if ($scope.getGitAttempts == 0) {
 
@@ -313,7 +315,7 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             resultLength = $scope.returnData.total_count;
 
             if (resultLength >= 5) {
-               matchesData = response;
+                matchesData = response;
             }
 
             console.log("GitHub # of Users returned from API Call", $scope.returnData.total_count);
@@ -351,13 +353,13 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
                         types: ['locality']
                         // Call nearbySearchResults
                     }, extendedNearbySearchResults);
-                } 
-                
+                }
+
             } else {
                 console.log($scope.usersReturned);
                 getLanguages(matchesData);
-                    console.log('getting languages');
-               
+                console.log('getting languages');
+
 
             }
         }, function (fail) {
@@ -367,8 +369,8 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
     //Display Location Results
     $scope.displayResultsLocation = function (matchesData) {
         // $scope.displayLocationMatches
-        
-        
+
+
         $scope.languagesSelected
         //console.log("Matches Data to display: ", matchesData);
         console.log("Selected Lang to display: ", $scope.languagesSelected);
@@ -389,8 +391,9 @@ app.controller('HomeController', ['$scope', '$timeout', '$http', '$sce', '$locat
             //console.log(index);
             displayMatches(index);
         }
-        function displayMatches(index) { 
+        function displayMatches(index) {
             matchLanguagesArray = [];
+
             for (var x = 0; x < 10; x++) {
                 console.log("LOCATION TOP FIVE", matchesData.items[x]);
                 $scope.firstFive.push(matchesData.items[x])
