@@ -5,22 +5,22 @@
   .controller('LocationController', ['$scope', '$timeout', '$http', '$sce', '$location', '$anchorScroll', 'locationService', 'matchService', 'jsonService', '$q', 'topLocationService', function ($scope, $timeout, $http, $sce, $location, $anchorScroll, locationService, matchService, jsonService, $q, topLocationService) {
       // Absolutely Global Variables
       const googleAPIkey = "AIzaSyA6GIc9OKDoXKgSP0hK4hDWP5vYcf4Z2E8";
-      var matchNearbyAttempts = 0;// FindMatch gets Called Multiple Times as it has recursive properties so this must remain global, unless it is passed
-      var getGitAttempts = 0;// FindMatch gets Called Multiple Times as it has recursive properties so this must remain global, unless it is passed
-      var lastGetGitAttempts = -1;// FindMatch gets Called Multiple Times as it has recursive properties so this must remain global, unless it is passed
-      var nearbyLocationList = []; // FindMatch gets Called Multiple Times as it has recursive properties so this must remain global, unless it is passed
+      let matchNearbyAttempts = 0;// FindMatch gets Called Multiple Times as it has recursive properties so this must remain global, unless it is passed
+      let getGitAttempts = 0;// FindMatch gets Called Multiple Times as it has recursive properties so this must remain global, unless it is passed
+      let lastGetGitAttempts = -1;// FindMatch gets Called Multiple Times as it has recursive properties so this must remain global, unless it is passed
+      let nearbyLocationList = []; // FindMatch gets Called Multiple Times as it has recursive properties so this must remain global, unless it is passed
       let usernameSender = ""; //Collab Request
       let usernameReceiver = ""; //Collab Request
-      var displayLocationGlobal = "";
-      var googleLocationToken = null;
+      let displayLocationGlobal = "";
+      let googleLocationToken = null;
 
 
 
 
 
 // Choose to revise this chunk and when it gets called, it may be fine where it was.
-      var gitColors = [];
-      var getData = jsonService.getColors();
+      let gitColors = [];
+      let getData = jsonService.getColors();
       getData.then(function (response) {
           angular.forEach(response, function (value, key) {
               //console.log("ADDED: ", value);
@@ -61,27 +61,23 @@
       // Called by button on View
       $scope.findNear = function () {
           let googleLocationToken = '';
-          var searchRadius = "40234"; // 25 miles in meters
-          var matchLanguagesArray = [];
-          var matchLanguagesCount = [];
+          let searchRadius = "40234"; // 25 miles in meters
+          let matchLanguagesArray = [];
+          let matchLanguagesCount = [];
           let latitude, longitude = null;
-          var languageToken = "";
+          let languageToken = "";
           let locationToken = "";
           let topUserUsersStoredLanguages = [];
           let topUserUsersArray = [];
-          //Resets stored top users array
-          topUserUsersArray.length = [];
-          topUserUsersStoredLanguages = [];
+          let gitLocationToken = null;
+          let myLatlng =null;
+          let service = null;
+          let getData = null;
 
           if ($scope.userForm.$valid) {
-              // Remove Spaces from input
-
               if ($scope.languagesSelected.length) {
                   $('#loading-modal').modal('toggle');
-
                   locationToken = $scope.location;
-                  var gitLocationToken = null;
-
                   //Google Maps Geocode
                   $http.get('https://maps.googleapis.com/maps/api/geocode/json?address=' + locationToken + '&key=' + googleAPIkey)
                     .then(function (result) {
@@ -93,10 +89,9 @@
 
                         //Dynamically the background for the match sectio based on user location
 
-                        //$scope.getTop();
                         //Gets user for that location (No Language Filter)
 
-                        var getData = matchService.getLocationUsers(gitLocationToken, languageToken);
+                        getData = matchService.getLocationUsers(gitLocationToken, languageToken);
                         getData.then(function (response) {
                             // console.log(response);
                             $scope.returnLocationUsersData = response.items;
@@ -114,8 +109,8 @@
 
                         // Needs to wait for ajax for proper variables
                         //Google Places API to get nearby cities (Within 25 Miles)
-                        var myLatlng = new google.maps.LatLng(latitude, longitude);
-                        var service = new google.maps.places.PlacesService($('#service-helper').get(0));
+                        myLatlng = new google.maps.LatLng(latitude, longitude);
+                        service = new google.maps.places.PlacesService($('#service-helper').get(0));
 
                         // Search NearBy Locations
                         service.nearbySearch({
@@ -149,7 +144,7 @@
           $scope.usersReturned = [];
           if (status === google.maps.places.PlacesServiceStatus.OK) {
               //console.log("Nearby Search SUCCESS: ", results.length);
-              for (var i = 0; i < results.length; i++) {
+              for (let i = 0; i < results.length; i++) {
                   nearbyLocationList[i] = results[i].name.replace(/\s+/g, '-').toLowerCase();
               }
               console.log("Nearby Places: ", nearbyLocationList);
@@ -170,15 +165,15 @@
         let matchesData;
 
           /*GitHub APi*/
-          var topLanguagesList = [];
+          let topLanguagesList = [];
 
 
           let languageToken = "";
-          var locationToken = locationT;
+          let locationToken = locationT;
           languageToken = $scope.createLanguageToken();
           console.log("Created User Token: ", languageToken);
           //Passes location to Factory. Determines whether return data is good.
-          var getData = locationService.getUsers(locationToken, languageToken);
+          let getData = locationService.getUsers(locationToken, languageToken);
           getData.then(function (response) {
               // console.log(response);
               $scope.returnData = response;
@@ -226,8 +221,8 @@
                       console.log("Last", lastGetGitAttempts);
                       console.log("Previous", getGitAttempts);
 
-                      var myLatlng = new google.maps.LatLng(latitude, longitude);
-                      var service = new google.maps.places.PlacesService($('#service-helper').get(0));
+                      let myLatlng = new google.maps.LatLng(latitude, longitude);
+                      let service = new google.maps.places.PlacesService($('#service-helper').get(0));
                       // Extended Search NearBy Locations
                       service.nearbySearch({
                           location: myLatlng,
@@ -254,8 +249,8 @@
           if (status === google.maps.places.PlacesServiceStatus.OK) {
               console.log("EXTENDED Nearby Search SUCCESS: ", results.length);
               console.log(results);
-              var currentResult = results[0].name;
-              for (var i = 0; i < results.length; i++) {
+              let currentResult = results[0].name;
+              for (let i = 0; i < results.length; i++) {
                   currentResult = results[i].name.replace(/\s+/g, '-').toLowerCase();
                   if (nearbyLocationList.indexOf(currentResult) == -1) {
                       nearbyLocationList[nearbyLocationList.length] = currentResult;
@@ -289,14 +284,14 @@
       }
 
       // Location
-      var promises = [];
+      let promises = [];
       function getLanguages(matchesData) {
         let topUserUsersStoredLanguages = [];
         let topUserUsersArray = [];
-        var language = [];
-        var numberOfLanguagestoDisplay = 6;
-        var pieDatasets = [];
-        var pieBackgroundColors = [];
+        let language = [];
+        let numberOfLanguagestoDisplay = 6;
+        let pieDatasets = [];
+        let pieBackgroundColors = [];
         let topLanguagesList = [];
         let myLocationChart = null;
         let myChartLocationMatch = null;
@@ -307,7 +302,7 @@
 
           // Helper Function to get Top Languages
           function findLocationRepos(username) {
-              var repoPromises = [];
+              let repoPromises = [];
               repoPromises.push(matchService.getRepos(username.login, null).then(function (response) {
                   $scope.currentMatchRepo = response;
                   angular.forEach($scope.currentMatchRepo, function (value, key) {
@@ -317,7 +312,7 @@
                       //Checks to see if the language match with the searcher's array of languages (user looking for matches)
                       if ($scope.currentMatchRepo.length) {
                           //Then checks to se if it's not already in array
-                          var matchItemIndex = matchLanguagesArray.indexOf(value.language);
+                          let matchItemIndex = matchLanguagesArray.indexOf(value.language);
 
                           if (matchItemIndex < 0) {
 
@@ -347,7 +342,7 @@
           $scope.gitTopAPI = function (locationT, languageToken,topUserUsersStoredLanguages,topUserUsersArray) {
               let resultLength;
               // Remove Spaces from input
-              var locationToken = locationT;
+              let locationToken = locationT;
               console.log("LocationToken: ", locationToken);
               console.log("LanguageToken: ", languageToken);
 
@@ -359,7 +354,7 @@
               // replace : with =
               // EG https://crossorigin.me/http://git-awards.com/api/v0/users?city=los+angeles&language=shell
 
-              var getData = topLocationService.getUsers(locationToken, languageToken);
+              let getData = topLocationService.getUsers(locationToken, languageToken);
               promises.push(getData.then(function (response) {
                   //console.log(response);
                   $scope.returnData = response;
@@ -396,7 +391,7 @@
           }
 
           function getColor(language) {
-              for (var z = 0; z < gitColors.length; z++) {
+              for (let z = 0; z < gitColors.length; z++) {
                   if (gitColors[z].name == language) {
                       //console.log("Color Found in JSON:", gitColors[z].color);
                       return gitColors[z].color;
@@ -415,7 +410,7 @@
               $scope.loadingResults = true;
 
               //Then checks to se if it's not already in array
-              var indexFound = topUserUsersStoredLanguages.indexOf(myLocationChart.getElementsAtEvent(evt)[0]._model.label);
+              let indexFound = topUserUsersStoredLanguages.indexOf(myLocationChart.getElementsAtEvent(evt)[0]._model.label);
 
               if (indexFound < 0) {
                   $scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), myLocationChart.getElementsAtEvent(evt)[0]._model.label,topUserUsersStoredLanguages);
@@ -442,19 +437,19 @@
 
 
 
-              for (var i = 0; i < matchLanguagesCount.length; i++) {
+              for (let i = 0; i < matchLanguagesCount.length; i++) {
                   if (matchLanguagesArray[i] !== null) {
 
                       topLanguagesList.push({ language: matchLanguagesArray[i], count: matchLanguagesCount[i] });
                   }
               }
 
-              var swapped;
+              let swapped;
               do {
                   swapped = false;
-                  for (var z = 0; z < topLanguagesList.length - 1; z++) {
+                  for (let z = 0; z < topLanguagesList.length - 1; z++) {
                       if (parseInt(topLanguagesList[z].count) < parseInt(topLanguagesList[z + 1].count)) {
-                          var temp = { language: topLanguagesList[z].language, count: topLanguagesList[z].count };
+                          let temp = { language: topLanguagesList[z].language, count: topLanguagesList[z].count };
                           topLanguagesList[z] = topLanguagesList[z + 1];
                           topLanguagesList[z + 1] = temp;
                           swapped = true;
@@ -463,7 +458,7 @@
                   }
 
               } while (swapped);
-              for ( i = 0; i < topLanguagesList.length; i++) {
+              for ( let i = 0; i < topLanguagesList.length; i++) {
                   console.log("Language", topLanguagesList[i].language, "Count:", topLanguagesList[i].count);
               }
               // Location Chart
@@ -474,33 +469,33 @@
 
 
 
-              for (i = 0; i < numberOfLanguagestoDisplay; i++) {
+              for (let i = 0; i < numberOfLanguagestoDisplay; i++) {
                   //console.log("Top Language", topLanguagesList[i].language, "Top Count", topLanguagesList[i].count);
                   language.push(topLanguagesList[i].language);
                   pieBackgroundColors.push(getColor(topLanguagesList[i].language));
                   pieDatasets.push(numberOfLanguagestoDisplay - (numberOfLanguagestoDisplay - topLanguagesList[i].count));
               }
-              for (var l = 0; l < 6; l++) {
+              for (let l = 0; l < 6; l++) {
                   if (topLanguagesList[l].language) {
                       $scope.chartSelectedLanguage = topLanguagesList[0].language;
                       $scope.gitTopAPI(nearbyLocationList[0].replace(/[_-]/g, "+").toLowerCase(), topLanguagesList[l].language,topUserUsersStoredLanguages, topUserUsersArray);
                   }
               }
 
-              for (var cm = 0; cm < 10; cm++) {
-                  var myData = matchService.getUser(matchesData.items[cm].login, cm);
+              for (let cm = 0; cm < 10; cm++) {
+                  let myData = matchService.getUser(matchesData.items[cm].login, cm);
                   promises.push(myData.then(renameFunction));
               }
 
               $timeout(function () {
-                  for (var tl = 0; tl < 6; tl++) {
+                  for (let tl = 0; tl < 6; tl++) {
                       console.log(topLanguagesList[tl]);
-                      var indexFound = topUserUsersStoredLanguages.indexOf(topLanguagesList[tl].language);
+                      let indexFound = topUserUsersStoredLanguages.indexOf(topLanguagesList[tl].language);
                       console.log(indexFound);
                       console.log(topUserUsersStoredLanguages);
                       console.log(topLanguagesList);
                       console.log(topUserUsersArray);
-                      var damnVariables = matchService.getUser(topUserUsersArray[indexFound].users[0].login, indexFound);
+                      let damnVariables = matchService.getUser(topUserUsersArray[indexFound].users[0].login, indexFound);
                       promises.push(damnVariables.then(topUsersFunction));
                   }
               }, 1000);
@@ -517,13 +512,13 @@
                       $('html, body').animate({
                           scrollTop: $("#location-section").offset().top
                       }, 1000);
-                      var indexFound = topUserUsersStoredLanguages.indexOf(topLanguagesList[0].language);
+                      let indexFound = topUserUsersStoredLanguages.indexOf(topLanguagesList[0].language);
 
                       console.log("Applying Now");
                       $scope.topUserForSelectedLanguage = topUserUsersArray[indexFound].users[0];
                       $scope.loadingResults = false;
 
-                  });
+                  },1000);
 
 
 
@@ -534,7 +529,7 @@
 
 
 
-              var ctx = document.getElementById('myChartLocation').getContext('2d');
+              let ctx = document.getElementById('myChartLocation').getContext('2d');
 
               myLocationChart = new Chart(ctx, {
                   type: 'horizontalBar',
@@ -606,14 +601,14 @@
               let matchLanguagesArray = [];
               let matchLanguagesCount = [];
 
-              for (var x = 0; x < 10; x++) {
+              for (let x = 0; x < 10; x++) {
                   console.log("LOCATION TOP FIVE", matchesData.items[x]);
                   $scope.firstFive.push(matchesData.items[x]);
               }
               $scope.currentMatch = matchesData.items[index];
 
               //Displays the bestMatch's repos.
-              var getData = matchService.getRepos(matchesData.items[index].login);
+              let getData = matchService.getRepos(matchesData.items[index].login);
               getData.then(function (response) {
                   //Stores the language for every repo found
                   $scope.currentMatchRepo = response;
@@ -622,10 +617,10 @@
 
                       //Checks to see if the language match with the searcher's array of languages (user looking for matches)
                       if ($scope.currentMatchRepo.length) {
-                          for (var i = 0; i < $scope.languagesSelected.length; i++) {
+                          for (let i = 0; i < $scope.languagesSelected.length; i++) {
                               if (value.language == $scope.languagesSelected[i]) {
                                   //Then checks to se if it's not already in array
-                                  var matchItemIndex = matchLanguagesArray.indexOf(value.language);
+                                  let matchItemIndex = matchLanguagesArray.indexOf(value.language);
                                   if (matchItemIndex < 0) {
 
                                       matchLanguagesArray.push(value.language);
@@ -645,19 +640,19 @@
 
                   }
 
-                  var totalItems = matchLanguagesArray.length;
-                  var pieDatasets = [];
-                  var pieBackgroundColors = [];
+                  let totalItems = matchLanguagesArray.length;
+                  let pieDatasets = [];
+                  let pieBackgroundColors = [];
 
 
-                  for (var i = 0; i < matchLanguagesArray.length; i++) {
+                  for (let i = 0; i < matchLanguagesArray.length; i++) {
                       pieBackgroundColors.push(getColor(matchLanguagesArray[i]));
                       pieDatasets.push(totalItems - (totalItems - matchLanguagesCount[i]));
                   }
 
 
                   function getColor(language) {
-                      for (var z = 0; z < gitColors.length; z++) {
+                      for (let z = 0; z < gitColors.length; z++) {
                           if (gitColors[z].name == language) {
                               //console.log("Color Found in JSON:", gitColors[z].color);
                               return gitColors[z].color;
@@ -666,7 +661,7 @@
                   }
 
                   console.log("Radar Data: ", totalItems, pieDatasets, pieBackgroundColors);
-                  var ctx = document.getElementById('myChartLocationMatch').getContext('2d');
+                  let ctx = document.getElementById('myChartLocationMatch').getContext('2d');
 
                   myChartMatch = new Chart(ctx, {
                       type: 'pie',
@@ -694,9 +689,9 @@
 
       //Background Image Function
       $scope.googleBG = function (location, section) {
-          var googleMapStyle1 = "&style=element:labels|visibility:off|color:0xf49f53&style=feature:water|element:geometry|color:0x42a9ee|lightness:17&style=feature:landscape|element:geometry|color:0xf5f5f5|lightness:20&style=feature:road.highway|element:geometry.fill|color:0xffffff|lightness:17&style=feature:road.highway|element:geometry.stroke|color:0xffffff|lightness:29|weight:0.2&style=feature:road.arterial|element:geometry|color:0xffffff|lightness:18&style=feature:road.local|element:geometry|color:0xffffff|lightness:16&style=feature:poi|element:geometry|color:0xf5f5f5|lightness:21&style=feature:poi.park|element:geometry|color:0xdedede|lightness:21&style=element:labels.text.stroke|visibility:off|color:0xffffff|lightness:16&style=element:labels.text.fill|saturation:36|color:0x333333|lightness:40&style=element:labels.icon|visibility:off&style=feature:transit|element:geometry|color:0xf2f2f2|lightness:19&style=feature:administrative|element:geometry.fill|color:0xfefefe|lightness:20&style=feature:administrative|element:geometry.stroke|color:0xfefefe|lightness:17|weight:1.2";
+          let googleMapStyle1 = "&style=element:labels|visibility:off|color:0xf49f53&style=feature:water|element:geometry|color:0x42a9ee|lightness:17&style=feature:landscape|element:geometry|color:0xf5f5f5|lightness:20&style=feature:road.highway|element:geometry.fill|color:0xffffff|lightness:17&style=feature:road.highway|element:geometry.stroke|color:0xffffff|lightness:29|weight:0.2&style=feature:road.arterial|element:geometry|color:0xffffff|lightness:18&style=feature:road.local|element:geometry|color:0xffffff|lightness:16&style=feature:poi|element:geometry|color:0xf5f5f5|lightness:21&style=feature:poi.park|element:geometry|color:0xdedede|lightness:21&style=element:labels.text.stroke|visibility:off|color:0xffffff|lightness:16&style=element:labels.text.fill|saturation:36|color:0x333333|lightness:40&style=element:labels.icon|visibility:off&style=feature:transit|element:geometry|color:0xf2f2f2|lightness:19&style=feature:administrative|element:geometry.fill|color:0xfefefe|lightness:20&style=feature:administrative|element:geometry.stroke|color:0xfefefe|lightness:17|weight:1.2";
           //Determines the zoom for the background image of the match section
-          var mapZoom = $scope.getLocationType(location);
+          let mapZoom = $scope.getLocationType(location);
           //console.log("Google Static Map Function. Token: ", location, "Section: ", section);
           //console.log("GOOGLE API TEST: Location Type:", mapZoom);
           switch (mapZoom) {
@@ -719,7 +714,7 @@
                   mapZoom = 11;
           }
           //Sets the zoom for the background image of the next section
-          var googleStaticMapUrl = "https://maps.googleapis.com/maps/api/staticmap?center=" + location + googleMapStyle1 + '&zoom=' + mapZoom + '&size=640x640&key=' + googleAPIkey;
+          let googleStaticMapUrl = "https://maps.googleapis.com/maps/api/staticmap?center=" + location + googleMapStyle1 + '&zoom=' + mapZoom + '&size=640x640&key=' + googleAPIkey;
 
           $('#' + section + '-section').css({ 'background-image': '  linear-gradient( 0deg, rgba(255,255,255, 0.9),  rgba(174,223,242, 0.3)), url(' + googleStaticMapUrl + ')' });
       };
@@ -776,7 +771,7 @@
       };
       // Toggle selection for a given language by name
       $scope.toggleSelection = function toggleSelection(langName) {
-          var idx = $scope.languagesSelected.indexOf(langName);
+          let idx = $scope.languagesSelected.indexOf(langName);
 
           // Is currently selected
           if (idx > -1) {
@@ -805,8 +800,8 @@
 
       // Create Token for GitHub Api Call
       $scope.createLanguageToken = function () {
-          var languageT = "";
-          for (var i = 0; i < $scope.languagesSelected.length; i++) {
+          let languageT = "";
+          for (let i = 0; i < $scope.languagesSelected.length; i++) {
               languageT += "+language:" + $scope.languagesSelected[i];
           }
           if ($scope.selectedItem !== null) {
@@ -826,7 +821,7 @@
 
 
 
-      
+
 
 
       // Google Geocode & Nearby Function
@@ -843,8 +838,8 @@
 
                 // Needs to wait for ajax for proper variables
                 //Google Places API to get nearby cities (Within 25 Miles)
-                var myLatlng = new google.maps.LatLng(latitude, longitude);
-                var service = new google.maps.places.PlacesService($('#service-helper').get(0));
+                let myLatlng = new google.maps.LatLng(latitude, longitude);
+                let service = new google.maps.places.PlacesService($('#service-helper').get(0));
 
                 // Search NearBy Locations
                 service.nearbySearch({
@@ -860,28 +855,8 @@
              });// End of Map Geocode Error CallBack
 
 
-          // Call Back Executed when Nearby Search returns its promise
-          function nearbySearchResults(results, status) {
-              if (status === google.maps.places.PlacesServiceStatus.OK) {
-                  //console.log("Nearby Search SUCCESS: ", results.length);
-                  for (var i = 0; i < results.length; i++) {
-                      nearbyLocationList[i] = results[i].name.replace(/\s+/g, '-').toLowerCase();
-                  }
-                  //console.log("Nearby Places: ", nearbyLocationList);
-
-              }
-              else {
-                  //console.log("Nearby Search FAIL");
-              }
-          }
+          
       };
-
-
-
-
-
-
-
 
       //Helps determine the map zoom
       $scope.getLocationType = function (location) {
@@ -902,7 +877,7 @@
 
 
       //Dropdown Menu WIP
-      var options = [];
+      let options = [];
 
       // Other Programming Languages Not Included as Check Boxes
       $scope.otherLanguages = [{
@@ -1593,7 +1568,7 @@
       ];
       $scope.getMatches = function (text) {
           text = text.toLowerCase();
-          var ret = $scope.otherLanguages.filter(function (d) {
+          let ret = $scope.otherLanguages.filter(function (d) {
               return d.display.toLowerCase().startsWith(text);
           });
           return ret;
