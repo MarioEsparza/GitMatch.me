@@ -13,24 +13,26 @@
       let usernameReceiver = ""; //Collab Request
       var displayLocationGlobal = "";
       var googleLocationToken = null;
-
-
-
-
-
-// Choose to revise this chunk and when it gets called, it may be fine where it was.
+      var promises = [];
       var gitColors = [];
-      var getData = jsonService.getColors();
-      getData.then(function (response) {
-          angular.forEach(response, function (value, key) {
-              //console.log("ADDED: ", value);
-              gitColors.push(value);
-          });
-          //console.log(gitColors);
-      }, function error(_error) {
-          console.log("Failed to load GitColors JSON");
-      });
-//---------------------------------------------------
+
+
+
+
+
+
+
+      jsonService.getColors()
+        .then(function (response) {
+            angular.forEach(response, function (value, key) {
+                //console.log("ADDED: ", value);
+                gitColors.push(value);
+            });
+            //console.log(gitColors);
+        }, function error(_error) {
+            console.log("Failed to load GitColors JSON");
+        });
+
 
 
 
@@ -1219,7 +1221,7 @@
 
 
 
-      var promises = [];
+
 
 
 
@@ -1268,7 +1270,7 @@
 
 
 
-    
+
 
       //Background Image Function
       $scope.googleBG = function (location, section) {
