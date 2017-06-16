@@ -1,4 +1,9 @@
-app.factory('locationService', ['$http', function ($http) {
+(function(){
+  'use strict';
+  const ACCESS_TOKEN = '';
+  angular
+  .module('GitMatchApp')
+  .factory('locationService', ['$http', function ($http) {
     return {
         getUsers: function (location, language) {
             //console.log("Service Location: ", location, "FilterBy: ", language)
@@ -8,17 +13,18 @@ app.factory('locationService', ['$http', function ($http) {
                 url: 'https://api.github.com/search/users?q=location%3A' + location + language,
                 headers:
                     {
-                        'Authorization': "token b155de31babbfb6abe7dd4f212dad683297ed3b5"
+                        'Authorization': `token ${ACCESS_TOKEN}`
                     }
 
 
-            }
-        
-        
+            };
+
+
         return $http(options)
                       .then(function (result) {
                           return result.data;
                       });
         }
-    }
+    };
 }]);
+})();

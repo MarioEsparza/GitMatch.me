@@ -1,4 +1,9 @@
-app.factory('matchService', ['$http', '$q', function ($http, $q) {
+(function(){
+  'use strict';
+  const ACCESS_TOKEN = '';
+  angular
+  .module('GitMatchApp')
+  .factory('matchService', ['$http', '$q', function ($http, $q) {
 
     var matchService = function () {
     };
@@ -9,11 +14,11 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/users/' + username,
             headers:
                 {
-                    'Authorization': "token b155de31babbfb6abe7dd4f212dad683297ed3b5"
+                    'Authorization':  `token ${ACCESS_TOKEN}`
                 }
 
 
-        }
+        };
 
 
 
@@ -29,17 +34,17 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/users/' + username,
             headers:
                 {
-                    'Authorization': "token b155de31babbfb6abe7dd4f212dad683297ed3b5"
+                    'Authorization': `token ${ACCESS_TOKEN}`
                 }
 
 
-        }
+        };
 
 
 
         return $http(options)
                 .then(function (result) {
-                    result.data.index = index
+                    result.data.index = index;
                     return result.data;
                 });
     };
@@ -51,11 +56,11 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/users/' + username + '/repos?sort=updated',
             headers:
                 {
-                    'Authorization': "token b155de31babbfb6abe7dd4f212dad683297ed3b5"
+                    'Authorization': `token ${ACCESS_TOKEN}`
                 }
 
 
-        }
+        };
         return $http(options)
                       .then(function (result) {
                           //console.log(result.data);
@@ -72,11 +77,11 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
             url: 'https://api.github.com/search/users?q=location%3A' + location,
             headers:
                 {
-                    'Authorization': "token b155de31babbfb6abe7dd4f212dad683297ed3b5"
+                    'Authorization': `token ${ACCESS_TOKEN}`
                 }
 
 
-        }
+        };
         return $http(options)
                 .then(function (result) {
                     return result.data;
@@ -86,3 +91,4 @@ app.factory('matchService', ['$http', '$q', function ($http, $q) {
     return matchService;
 
 }]);
+})();

@@ -1,7 +1,12 @@
-app.factory('topLocationService', ['$http', '$q', function ($http, $q) {
+(function(){
+  'use strict';
+  
+  angular
+  .module('GitMatchApp')
+  .factory('topLocationService', ['$http', '$q', function ($http, $q) {
     return {
         getUsers: function (location, language) {
-            console.log("Service Location: ", location, "FilterBy: ", language)
+            console.log("Service Location: ", location, "FilterBy: ", language);
             // the location needs to say just the city, not the state or anything else
             var tokens = location.split(',');
             location = tokens[0];
@@ -30,6 +35,6 @@ app.factory('topLocationService', ['$http', '$q', function ($http, $q) {
                           return error;
                       });
         }
-    }
+    };
 }]);
-
+})();
