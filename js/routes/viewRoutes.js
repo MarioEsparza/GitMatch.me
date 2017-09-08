@@ -12,7 +12,7 @@
           })
              .when('/location', {
                  templateUrl: 'views/location.html',
-                 controller: 'HomeController'
+                 controller: 'LocationController'
              })
           .when('/about', {
               templateUrl: 'views/about.html',
